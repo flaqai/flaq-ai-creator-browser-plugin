@@ -16,7 +16,7 @@
     "typecheck:site": "pnpm --dir web/flaq-saas ts-check",
     "test": "vitest run",
     "smoke:site": "node scripts/smoke-site.mjs",
-    "sync:site": "git subtree pull --prefix web/flaq-saas flaq-saas-template main --squash"
+    "sync:site": "git subtree pull --prefix web/flaq-saas https://github.com/flaqai/flaq-saas-template.git main --squash"
   },
   "dependencies": {
     "react": "latest",

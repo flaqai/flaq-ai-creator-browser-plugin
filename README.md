@@ -64,7 +64,6 @@ pnpm smoke:site
 `web/flaq-saas/` 是完整源码，不是 Submodule。普通 clone 和 GitHub 下载 ZIP 都会包含它。更新上游版本时运行：
 
 ```bash
-git fetch flaq-saas-template main
 pnpm sync:site
 ```
 
