@@ -1,0 +1,10 @@
+{
+  "extensionName": { "message": "FLAQ AI Creator" },
+  "extensionDescription": { "message": "Open the full FLAQ AI creation website in your browser side panel." },
+  "frameTitle": { "message": "FLAQ AI Creator" },
+  "loadingMessage": { "message": "Loading FLAQ…" },
+  "loadErrorTitle": { "message": "FLAQ could not be loaded" },
+  "loadErrorDescription": { "message": "Check that the site is running and allows browser extension embedding." },
+  "retryButton": { "message": "Retry" },
+  "openButton": { "message": "Open in a new tab" }
+}

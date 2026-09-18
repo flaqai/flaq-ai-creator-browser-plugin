@@ -1,0 +1,10 @@
+{
+  "extensionName": { "message": "FLAQ AI Creator" },
+  "extensionDescription": { "message": "Abre el sitio completo de creación FLAQ AI en el panel lateral del navegador." },
+  "frameTitle": { "message": "FLAQ AI Creator" },
+  "loadingMessage": { "message": "Cargando FLAQ…" },
+  "loadErrorTitle": { "message": "No se pudo cargar FLAQ" },
+  "loadErrorDescription": { "message": "Comprueba que el sitio esté activo y permita la inserción desde extensiones." },
+  "retryButton": { "message": "Reintentar" },
+  "openButton": { "message": "Abrir en una pestaña nueva" }
+}

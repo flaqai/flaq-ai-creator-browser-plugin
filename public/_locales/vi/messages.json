@@ -1,0 +1,10 @@
+{
+  "extensionName": { "message": "FLAQ AI Creator" },
+  "extensionDescription": { "message": "Mở toàn bộ trang sáng tạo FLAQ AI trong bảng bên của trình duyệt." },
+  "frameTitle": { "message": "FLAQ AI Creator" },
+  "loadingMessage": { "message": "Đang tải FLAQ…" },
+  "loadErrorTitle": { "message": "Không thể tải FLAQ" },
+  "loadErrorDescription": { "message": "Hãy kiểm tra trang đang hoạt động và cho phép tiện ích nhúng." },
+  "retryButton": { "message": "Thử lại" },
+  "openButton": { "message": "Mở trong tab mới" }
+}

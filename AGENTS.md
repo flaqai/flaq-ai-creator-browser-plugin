@@ -4,14 +4,13 @@
 
 This repository is a React, TypeScript, and Vite browser extension using Chrome Manifest V3.
 
-- `src/App.tsx` contains the side-panel UI and interaction flow.
-- `src/api.ts`, `src/browser.ts`, and `src/storage.ts` isolate FLAQ API access, browser APIs, and persisted state.
-- `src/models.ts` defines supported image/video models; colocate focused tests as `*.test.ts` (for example, `src/models.test.ts`).
-- `src/styles.css` owns the responsive side-panel design.
-- `public/manifest.json`, `public/background.js`, and `public/icons/` are copied unchanged into the extension build.
+- `src/App.tsx` contains the full-viewport iframe shell and fallback states.
+- `src/config.ts` maps browser locales and builds the localized AI Creator URL; colocate focused tests as `*.test.ts`.
+- `src/styles.css` styles only the loading/error shell; the embedded site owns normal UI.
+- `public/manifest.json`, `public/background.js`, `public/icons/`, and `public/_locales/` are copied into the extension build.
 - `sidepanel.html` is the Vite entry point. Generated output lives in `dist/` and is not committed.
 
-Keep browser-specific behavior behind small adapters rather than calling `chrome.*` throughout UI components.
+Keep the extension a thin website container. Product features, API access, credentials, history, and content belong to the embedded FLAQ SaaS site.
 
 ## Build, Test, and Development Commands
 
@@ -21,7 +20,8 @@ Use the pinned pnpm version from `package.json`.
 - `pnpm dev` starts the local side-panel preview at `http://127.0.0.1:5173/sidepanel.html`.
 - `pnpm typecheck` runs strict TypeScript validation without emitting files.
 - `pnpm test` runs the Vitest suite once.
-- `pnpm build` type-checks and produces the unpacked extension in `dist/`.
+- `pnpm build` or `pnpm build:dev` produces a localhost-targeted unpacked extension in `dist/`.
+- `VITE_SIDEPANEL_SITE_URL=https://example.com pnpm build:production` produces a production build and scopes iframe CSP to that origin.
 
 Before handing off a change, run `pnpm typecheck`, `pnpm test`, and `pnpm build`.
 
@@ -31,7 +31,7 @@ Use TypeScript with two-space indentation, semicolons, single quotes, and traili
 
 ## Testing Guidelines
 
-Vitest is the test framework. Name tests `src/<module>.test.ts` and describe observable behavior. No coverage threshold is configured; add targeted tests for model mappings, request construction, storage migrations, and other deterministic logic. Do not make paid or credentialed FLAQ API calls in automated tests.
+Vitest is the test framework. Name tests `src/<module>.test.ts` and describe observable behavior. No coverage threshold is configured; add targeted tests for locale mapping, URL construction, manifest generation, and other deterministic shell logic. Do not make paid or credentialed FLAQ API calls in automated tests.
 
 ## Commit & Pull Request Guidelines
 
@@ -41,7 +41,7 @@ Pull requests should include a concise summary, verification commands, linked is
 
 ## Security & Configuration
 
-Never commit Client Keys or local browser data. Keep host permissions scoped to `https://api.flaq.ai/*`; justify any expansion in the pull request. Store secrets only through `chrome.storage.local` and avoid logging authorization headers.
+Never commit Client Keys or local browser data. Keep extension permissions limited to `sidePanel`. Production builds must set `VITE_SIDEPANEL_SITE_URL`, and the generated `frame-src` must contain only that site origin. Any permission or origin expansion requires explicit pull-request justification.
 
 ## Agent skills
 

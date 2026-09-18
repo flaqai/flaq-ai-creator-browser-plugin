@@ -1,0 +1,10 @@
+{
+  "extensionName": { "message": "FLAQ AI Creator" },
+  "extensionDescription": { "message": "เปิดเว็บไซต์สร้างสรรค์ FLAQ AI แบบเต็มในแผงด้านข้างของเบราว์เซอร์" },
+  "frameTitle": { "message": "FLAQ AI Creator" },
+  "loadingMessage": { "message": "กำลังโหลด FLAQ…" },
+  "loadErrorTitle": { "message": "ไม่สามารถโหลด FLAQ ได้" },
+  "loadErrorDescription": { "message": "ตรวจสอบว่าเว็บไซต์กำลังทำงานและอนุญาตให้ส่วนขยายฝังได้" },
+  "retryButton": { "message": "ลองอีกครั้ง" },
+  "openButton": { "message": "เปิดในแท็บใหม่" }
+}

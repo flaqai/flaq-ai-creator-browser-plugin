@@ -1,0 +1,10 @@
+{
+  "extensionName": { "message": "FLAQ AI Creator" },
+  "extensionDescription": { "message": "ブラウザのサイドパネルで FLAQ AI 制作サイト全体を開きます。" },
+  "frameTitle": { "message": "FLAQ AI Creator" },
+  "loadingMessage": { "message": "FLAQ を読み込んでいます…" },
+  "loadErrorTitle": { "message": "FLAQ を読み込めませんでした" },
+  "loadErrorDescription": { "message": "サイトが起動し、拡張機能からの埋め込みを許可しているか確認してください。" },
+  "retryButton": { "message": "再試行" },
+  "openButton": { "message": "新しいタブで開く" }
+}

@@ -1,0 +1,10 @@
+{
+  "extensionName": { "message": "FLAQ AI Creator" },
+  "extensionDescription": { "message": "Открывает полный сайт FLAQ AI в боковой панели браузера." },
+  "frameTitle": { "message": "FLAQ AI Creator" },
+  "loadingMessage": { "message": "Загрузка FLAQ…" },
+  "loadErrorTitle": { "message": "Не удалось загрузить FLAQ" },
+  "loadErrorDescription": { "message": "Проверьте, что сайт запущен и разрешает встраивание расширением." },
+  "retryButton": { "message": "Повторить" },
+  "openButton": { "message": "Открыть в новой вкладке" }
+}

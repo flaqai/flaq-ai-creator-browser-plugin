@@ -1,0 +1,10 @@
+{
+  "extensionName": { "message": "FLAQ AI Creator" },
+  "extensionDescription": { "message": "브라우저 사이드 패널에서 전체 FLAQ AI 제작 사이트를 엽니다." },
+  "frameTitle": { "message": "FLAQ AI Creator" },
+  "loadingMessage": { "message": "FLAQ 불러오는 중…" },
+  "loadErrorTitle": { "message": "FLAQ를 불러올 수 없습니다" },
+  "loadErrorDescription": { "message": "사이트가 실행 중이며 확장 프로그램 삽입을 허용하는지 확인하세요." },
+  "retryButton": { "message": "다시 시도" },
+  "openButton": { "message": "새 탭에서 열기" }
+}
