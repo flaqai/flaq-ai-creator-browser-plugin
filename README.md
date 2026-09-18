@@ -21,31 +21,54 @@ Client Key、任务轮询、历史记录、上传和语言切换均由嵌入的 
 - `public/_locales/`：15 种扩展本地化文案
 - `public/background.js`：点击工具栏图标打开 Side Panel
 - `vite.config.ts`：注入站点地址并为目标 Origin 生成 iframe CSP
+- `web/flaq-saas/`：通过 Git Subtree 导入的完整 SaaS 源码
+- `scripts/dev.mjs`：从仓库根目录同时管理 SaaS 和插件开发进程
 
 ## 本地开发
 
 环境要求：Node.js 20+、pnpm 10.5.2、Chrome 116+ 或新版 Edge。
 
-### 1. 启动参考网站
-
-```bash
-cd /Users/6677h/StudioProjects/flaq-saas
-pnpm install
-pnpm dev
-```
-
-确认 <http://localhost:3000/ai-media-creator/> 可以正常访问。插件开发构建默认加载这个地址。
-
-### 2. 启动外壳页面预览
-
-在插件仓库运行：
+### 1. 安装整个工作区
 
 ```bash
 pnpm install
+```
+
+根项目的 `postinstall` 会继续使用 `web/flaq-saas/pnpm-lock.yaml` 安装 SaaS 依赖。两套依赖和锁文件保持隔离，不再依赖仓库外部的 `/Users/6677h/StudioProjects/flaq-saas`。
+
+### 2. 一键启动完整开发环境
+
+在仓库根目录运行：
+
+```bash
 pnpm dev
 ```
 
-打开 <http://127.0.0.1:5173/sidepanel.html>。该模式支持外壳加载态和错误态的热更新；实际网页内容仍来自端口 3000。
+该命令固定启动：
+
+- SaaS：<http://localhost:3000/ai-media-creator/>
+- 插件预览：<http://127.0.0.1:5173/sidepanel.html>
+
+按 `Ctrl+C` 会同时停止两个进程。也可以分别运行 `pnpm dev:site` 或 `pnpm dev:extension`。
+
+SaaS 启动烟测：
+
+```bash
+pnpm smoke:site
+```
+
+该命令会检查文件监听器没有进入错误循环，并要求 `/ai-media-creator/` 返回 HTTP 200。嵌套开发环境使用轮询监听，并在 `web/flaq-saas/next.config.mjs` 中明确限定 Turbopack 根目录；同步上游时应保留这两项集成配置。
+
+## 同步 SaaS 上游
+
+`web/flaq-saas/` 是完整源码，不是 Submodule。普通 clone 和 GitHub 下载 ZIP 都会包含它。更新上游版本时运行：
+
+```bash
+git fetch flaq-saas-template main
+pnpm sync:site
+```
+
+该命令会生成一次 subtree 合并提交；执行前应保持工作树干净。SaaS 产品功能应优先提交到 `flaq-saas-template`，再同步到本仓库，避免产生两个独立版本。
 
 ## 真实扩展验证
 

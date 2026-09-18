@@ -4,12 +4,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 127.0.0.1 --mode development",
+    "postinstall": "pnpm --dir web/flaq-saas install --frozen-lockfile",
+    "dev": "node scripts/dev.mjs",
+    "dev:site": "WATCHPACK_POLLING=true pnpm --dir web/flaq-saas exec next dev -p 3000",
+    "dev:extension": "vite --host 127.0.0.1 --mode development",
     "build": "pnpm run build:dev",
     "build:dev": "tsc -b && vite build --mode development",
     "build:production": "tsc -b && vite build --mode production",
+    "build:site": "pnpm --dir web/flaq-saas build",
     "typecheck": "tsc -b",
-    "test": "vitest run"
+    "typecheck:site": "pnpm --dir web/flaq-saas ts-check",
+    "test": "vitest run",
+    "smoke:site": "node scripts/smoke-site.mjs",
+    "sync:site": "git subtree pull --prefix web/flaq-saas flaq-saas-template main --squash"
   },
   "dependencies": {
     "react": "latest",

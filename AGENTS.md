@@ -8,6 +8,8 @@ This repository is a React, TypeScript, and Vite browser extension using Chrome 
 - `src/config.ts` maps browser locales and builds the localized AI Creator URL; colocate focused tests as `*.test.ts`.
 - `src/styles.css` styles only the loading/error shell; the embedded site owns normal UI.
 - `public/manifest.json`, `public/background.js`, `public/icons/`, and `public/_locales/` are copied into the extension build.
+- `web/flaq-saas/` is a Git Subtree containing the complete upstream SaaS site used by the iframe.
+- `scripts/dev.mjs` starts and stops the SaaS and extension development processes together.
 - `sidepanel.html` is the Vite entry point. Generated output lives in `dist/` and is not committed.
 
 Keep the extension a thin website container. Product features, API access, credentials, history, and content belong to the embedded FLAQ SaaS site.
@@ -16,9 +18,12 @@ Keep the extension a thin website container. Product features, API access, crede
 
 Use the pinned pnpm version from `package.json`.
 
-- `pnpm install` installs dependencies from `pnpm-lock.yaml`.
-- `pnpm dev` starts the local side-panel preview at `http://127.0.0.1:5173/sidepanel.html`.
+- `pnpm install` installs the extension, then installs the isolated SaaS project from its own lockfile.
+- `pnpm dev` starts the SaaS site on port 3000 and the side-panel preview on port 5173.
+- `pnpm dev:site` or `pnpm dev:extension` starts only one side of the local environment.
+- `pnpm smoke:site` starts the embedded site, rejects watcher failures, and requires an HTTP 200 response.
 - `pnpm typecheck` runs strict TypeScript validation without emitting files.
+- `pnpm typecheck:site` validates the embedded SaaS project.
 - `pnpm test` runs the Vitest suite once.
 - `pnpm build` or `pnpm build:dev` produces a localhost-targeted unpacked extension in `dist/`.
 - `VITE_SIDEPANEL_SITE_URL=https://example.com pnpm build:production` produces a production build and scopes iframe CSP to that origin.
@@ -42,6 +47,8 @@ Pull requests should include a concise summary, verification commands, linked is
 ## Security & Configuration
 
 Never commit Client Keys or local browser data. Keep extension permissions limited to `sidePanel`. Production builds must set `VITE_SIDEPANEL_SITE_URL`, and the generated `frame-src` must contain only that site origin. Any permission or origin expansion requires explicit pull-request justification.
+
+The embedded Next.js project needs its explicit `turbopack.root` integration setting and polling-based development watcher when nested here. Preserve these integration adjustments when pulling a new subtree revision.
 
 ## Agent skills
 
