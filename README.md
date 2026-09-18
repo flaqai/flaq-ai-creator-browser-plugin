@@ -1,0 +1,1 @@
+# flaq-ai-creator-browser-plugin
