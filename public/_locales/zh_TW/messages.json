@@ -1,0 +1,10 @@
+{
+  "extensionName": { "message": "FLAQ AI 創作" },
+  "extensionDescription": { "message": "在瀏覽器側邊欄中開啟完整的 FLAQ AI 創作網站。" },
+  "frameTitle": { "message": "FLAQ AI 創作" },
+  "loadingMessage": { "message": "正在載入 FLAQ…" },
+  "loadErrorTitle": { "message": "無法載入 FLAQ" },
+  "loadErrorDescription": { "message": "請確認網站正在執行，並允許瀏覽器擴充功能嵌入。" },
+  "retryButton": { "message": "重試" },
+  "openButton": { "message": "在新分頁開啟" }
+}

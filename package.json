@@ -4,24 +4,32 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
-    "build": "tsc -b && vite build",
+    "postinstall": "pnpm --dir web/flaq-saas install --frozen-lockfile",
+    "dev": "node scripts/dev.mjs",
+    "dev:site": "node scripts/dev-site.mjs",
+    "dev:extension": "vite --host 127.0.0.1 --mode development",
+    "build": "pnpm run build:dev",
+    "build:dev": "tsc -b && vite build --mode development",
+    "build:production": "tsc -b && vite build --mode production",
+    "build:site": "pnpm --dir web/flaq-saas build",
     "typecheck": "tsc -b",
-    "test": "vitest run"
+    "typecheck:site": "pnpm --dir web/flaq-saas ts-check",
+    "test": "vitest run",
+    "smoke:site": "node scripts/smoke-site.mjs",
+    "sync:site": "git subtree pull --prefix web/flaq-saas https://github.com/flaqai/flaq-saas-template.git main --squash"
   },
   "dependencies": {
-    "@vitejs/plugin-react": "latest",
-    "lucide-react": "latest",
     "react": "latest",
-    "react-dom": "latest",
-    "vite": "latest"
+    "react-dom": "latest"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "latest",
     "@types/chrome": "latest",
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "typescript": "latest",
+    "vite": "latest",
     "vitest": "latest"
   },
   "packageManager": "pnpm@10.5.2"

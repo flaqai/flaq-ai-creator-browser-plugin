@@ -1,0 +1,10 @@
+{
+  "extensionName": { "message": "FLAQ AI Creator" },
+  "extensionDescription": { "message": "Buka situs kreasi FLAQ AI lengkap di panel samping browser." },
+  "frameTitle": { "message": "FLAQ AI Creator" },
+  "loadingMessage": { "message": "Memuat FLAQ…" },
+  "loadErrorTitle": { "message": "FLAQ tidak dapat dimuat" },
+  "loadErrorDescription": { "message": "Pastikan situs berjalan dan mengizinkan penyematan dari ekstensi." },
+  "retryButton": { "message": "Coba lagi" },
+  "openButton": { "message": "Buka di tab baru" }
+}

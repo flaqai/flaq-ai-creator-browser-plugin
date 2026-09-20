@@ -8,21 +8,12 @@ importers:
 
   .:
     dependencies:
-      '@vitejs/plugin-react':
-        specifier: latest
-        version: 6.1.1(vite@8.3.0(@types/node@26.6.1))
-      lucide-react:
-        specifier: latest
-        version: 1.47.0(react@19.3.0)
       react:
         specifier: latest
         version: 19.3.0
       react-dom:
         specifier: latest
         version: 19.3.0(react@19.3.0)
-      vite:
-        specifier: latest
-        version: 8.3.0(@types/node@26.6.1)
     devDependencies:
       '@types/chrome':
         specifier: latest
@@ -36,9 +27,15 @@ importers:
       '@types/react-dom':
         specifier: latest
         version: 19.3.0(@types/react@19.3.0)
+      '@vitejs/plugin-react':
+        specifier: latest
+        version: 6.1.1(vite@8.3.0(@types/node@26.6.1))
       typescript:
         specifier: latest
         version: 7.0.2
+      vite:
+        specifier: latest
+        version: 8.3.0(@types/node@26.6.1)
       vitest:
         specifier: latest
         version: 5.0.1(@types/node@26.6.1)(vite@8.3.0(@types/node@26.6.1))
@@ -452,11 +449,6 @@ packages:
     resolution: {integrity: sha512-WkUDrojuJs0xkgGf2udWxa3yGBRxPtxUkB79i6aCZLRgc7PM8fZe9TosfPDcvEpQZbuFASnHYmRLBLUbmLOIIA==}
     engines: {node: '>= 12.0.0'}
 
-  lucide-react@1.47.0:
-    resolution: {integrity: sha512-o8C23aXpNQypRY73W7fW02EyvWJinEMXgKeGjFoKym0zj3Q73hD97A1IQps1g8C14HTGsOpZL0Am+xjfgFZAbg==}
-    peerDependencies:
-      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
-
   magic-string@1.4.1:
     resolution: {integrity: sha512-8lyCu36ErXR0J9uaGKlKQoiLZKmtI63YGLE8G2o9jyRPdr4X47LusSOwgOJOzcVtp81fTAAjxR7BwKz682Jhow==}
 
@@ -860,10 +852,6 @@ snapshots:
       lightningcss-linux-x64-musl: 1.33.0
       lightningcss-win32-arm64-msvc: 1.33.0
       lightningcss-win32-x64-msvc: 1.33.0
-
-  lucide-react@1.47.0(react@19.3.0):
-    dependencies:
-      react: 19.3.0
 
   magic-string@1.4.1:
     dependencies:

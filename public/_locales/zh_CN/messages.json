@@ -1,0 +1,10 @@
+{
+  "extensionName": { "message": "FLAQ AI 创作" },
+  "extensionDescription": { "message": "在浏览器侧边栏中打开完整的 FLAQ AI 创作网站。" },
+  "frameTitle": { "message": "FLAQ AI 创作" },
+  "loadingMessage": { "message": "正在加载 FLAQ…" },
+  "loadErrorTitle": { "message": "无法加载 FLAQ" },
+  "loadErrorDescription": { "message": "请确认网站正在运行，并允许浏览器扩展嵌入。" },
+  "retryButton": { "message": "重试" },
+  "openButton": { "message": "在新标签页打开" }
+}

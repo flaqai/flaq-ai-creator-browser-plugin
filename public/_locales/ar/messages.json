@@ -1,0 +1,10 @@
+{
+  "extensionName": { "message": "FLAQ AI Creator" },
+  "extensionDescription": { "message": "افتح موقع إنشاء FLAQ AI الكامل في اللوحة الجانبية للمتصفح." },
+  "frameTitle": { "message": "FLAQ AI Creator" },
+  "loadingMessage": { "message": "جارٍ تحميل FLAQ…" },
+  "loadErrorTitle": { "message": "تعذر تحميل FLAQ" },
+  "loadErrorDescription": { "message": "تحقق من أن الموقع يعمل ويسمح بالتضمين من ملحق المتصفح." },
+  "retryButton": { "message": "إعادة المحاولة" },
+  "openButton": { "message": "فتح في علامة تبويب جديدة" }
+}

@@ -1,79 +1,137 @@
 # FLAQ AI Creator Browser Plugin
 
-Chrome / Edge Manifest V3 侧边栏扩展。在浏览网页时，可直接使用当前页面标题、选中文字或右键图片作为创作上下文，通过 FLAQ API 生成图片与视频。
+Chrome / Edge Manifest V3 侧边栏扩展。插件本身是一个轻量网页容器，直接在浏览器 Side Panel 中加载完整的 FLAQ SaaS 移动端页面，而不是在扩展内复制生成器逻辑。
 
 ## 功能
 
 - 点击扩展图标打开浏览器原生 Side Panel
-- 自动读取当前标签页标题与选中文字
-- 右键选中文字或图片发送到 FLAQ
-- 图片 / 视频模型、画幅、清晰度和时长选择
-- 直接调用 FLAQ Open API，轮询任务并保存本地生成记录
-- Client Key 仅保存在扩展的 `chrome.storage.local`
-- 扩展网络权限仅开放给官方 `https://api.flaq.ai/*`
+- 完整展示 AI Creator 的导航、生成器、历史记录、公开说明、示例图片和页脚
+- 根据浏览器界面语言进入对应网站路由
+- 提供 15 种 Manifest 本地化名称、描述和加载/错误提示
+- 同域页面继续在侧栏内导航；网站已有的外部链接在新标签页打开
+- 仅申请 `sidePanel` 权限，不读取当前标签页或保存 FLAQ Client Key
+
+Client Key、任务轮询、历史记录、上传和语言切换均由嵌入的 FLAQ SaaS 网站负责。
+
+## 项目结构
+
+- `src/App.tsx`：无凭据连通性探测、全屏 iframe、加载/错误态和重试入口
+- `src/config.ts`：浏览器语言映射与 AI Creator URL 构建
+- `public/manifest.json`：最小 Manifest V3 权限和 Side Panel 配置
+- `public/_locales/`：15 种扩展本地化文案
+- `public/background.js`：点击工具栏图标打开 Side Panel
+- `vite.config.ts`：注入站点地址并为目标 Origin 生成 iframe CSP
+- `web/flaq-saas/`：通过 Git Subtree 导入的完整 SaaS 源码
+- `scripts/dev.mjs`：从仓库根目录同时管理 SaaS 和插件开发进程
 
 ## 本地开发
 
-环境要求：Node.js 20+、pnpm 10.5.2，以及支持 Manifest V3 Side Panel 的 Chrome 116+ 或新版 Edge。
+环境要求：Node.js 20+、pnpm 10.5.2、Chrome 116+ 或新版 Edge。
 
-安装依赖并启动普通网页预览：
+### 1. 安装整个工作区
 
 ```bash
 pnpm install
+```
+
+根项目的 `postinstall` 会继续使用 `web/flaq-saas/pnpm-lock.yaml` 安装 SaaS 依赖。两套依赖和锁文件保持隔离，不再依赖仓库外部的 `/Users/6677h/StudioProjects/flaq-saas`。
+
+### 2. 一键启动完整开发环境
+
+在仓库根目录运行：
+
+```bash
 pnpm dev
 ```
 
-打开 <http://127.0.0.1:5173/sidepanel.html>。该模式支持 Vite 热更新，适合调整布局、表单和响应式样式；它使用浏览器 API 的降级逻辑，不能验证 Side Panel、扩展右键菜单、`activeTab` 权限或 `chrome.storage.local`。
+该命令默认启动：
 
-## 浏览器扩展开发验证
+- SaaS：<http://localhost:3000/ai-media-creator/>
+- 插件预览：<http://127.0.0.1:5173/sidepanel.html>
 
-### 1. 构建扩展
+按 `Ctrl+C` 会同时停止两个进程。也可以分别运行 `pnpm dev:site` 或 `pnpm dev:extension`。
+
+端口由唯一的 `FLAQ_SITE_PORT` 配置控制。`pnpm dev` 会先用同一个端口重新构建 `dist/`，再启动 SaaS 和插件预览，确保 Next.js 监听端口、iframe URL 与扩展 CSP 始终一致。默认值为 `3000`；需要覆盖时只设置一次：
+
+```bash
+FLAQ_SITE_PORT=3100 pnpm dev
+```
+
+修改端口后需在 `chrome://extensions/` 对已加载的扩展点击一次“重新加载”，让 Chrome 读取新生成的 `dist/manifest.json`。
+
+SaaS 启动烟测：
+
+```bash
+pnpm smoke:site
+```
+
+该命令会检查文件监听器没有进入错误循环，并要求 `/ai-media-creator/` 返回 HTTP 200。嵌套开发环境使用轮询监听，并在 `web/flaq-saas/next.config.mjs` 中明确限定 Turbopack 根目录；同步上游时应保留这两项集成配置。
+
+## 同步 SaaS 上游
+
+`web/flaq-saas/` 是完整源码，不是 Submodule。普通 clone 和 GitHub 下载 ZIP 都会包含它。更新上游版本时运行：
+
+```bash
+pnpm sync:site
+```
+
+该命令会生成一次 subtree 合并提交；执行前应保持工作树干净。SaaS 产品功能应优先提交到 `flaq-saas-template`，再同步到本仓库，避免产生两个独立版本。
+
+## 真实扩展验证
+
+### 1. 构建本地扩展
 
 ```bash
 pnpm typecheck
 pnpm test
-pnpm build
+pnpm build:dev
 ```
 
-构建产物位于 `dist/`。每次修改 `public/manifest.json`、`public/background.js` 或需要进行真实扩展验证时，都应重新运行 `pnpm build`。
+`dist/manifest.json` 的 `frame-src` 应只包含当前开发 Origin；默认是 `http://localhost:3000`。如果使用 `FLAQ_SITE_PORT` 覆盖端口，构建产物会同步使用对应 Origin。
 
 ### 2. 加载未打包扩展
 
-Chrome：
+1. 打开 Chrome 的 `chrome://extensions/`，或 Edge 的 `edge://extensions/`。
+2. 开启“开发者模式”。
+3. 点击“加载已解压的扩展程序”，选择本仓库的 `dist/`。
+4. 固定 **FLAQ AI Creator**，点击图标打开右侧 Side Panel。
 
-1. 打开 `chrome://extensions/`。
-2. 开启右上角“开发者模式”。
-3. 点击“加载已解压的扩展程序”，选择本仓库的 `dist/` 目录。
-4. 将 **FLAQ AI Creator** 固定到工具栏，点击图标；浏览器右侧应打开 Side Panel。
+源码改变后重新执行 `pnpm build:dev`，再在扩展管理页点击“重新加载”。Vite 的热更新不会更新浏览器已加载的 `dist/`。
 
-Edge 使用 `edge://extensions/`，其余步骤相同。
+### 3. 验证清单
 
-源代码改变后，重新执行 `pnpm build`，再回到扩展管理页点击扩展卡片上的“重新加载”。`pnpm dev` 的热更新不会自动更新已加载的 `dist/` 扩展。
+- 侧栏中只显示参考网站，不出现额外的插件标题栏或重复生成表单。
+- 约 300–600px 宽度下，顶部移动导航、生成器和页面下方内容完整可滚动且无横向溢出。
+- 图片/视频类型、模型、上传、设置、历史和语言切换与移动网页一致。
+- 浏览器语言为英文、简体中文、繁体中文、日语或阿拉伯语时进入对应路由；未知语言回退英文。
+- `chrome://extensions/` 中只显示 `sidePanel` 权限。
+- 停止端口 3000 的网站后，约 12 秒出现重试和“在新标签页打开”入口。
+- Side Panel Console 与扩展 Service Worker Console 无错误。
 
-### 3. 手动验证清单
+真实生成由参考网站调用 FLAQ API，可能产生费用；普通布局验证无需提交生成任务。
 
-- 在普通 HTTPS 网页点击扩展图标，确认侧边栏打开且显示当前页面标题。
-- 选中一段文字后点击侧边栏刷新按钮，确认文字进入页面上下文。
-- 右键选中文字，选择“用 FLAQ 创作选中的内容”，确认侧边栏打开并带入文字。
-- 右键网页图片，选择“用 FLAQ 创作这张图片”，确认切换到图片编辑模型并填入图片 URL。
-- 切换图片/视频、模型、画幅、清晰度和时长，确认可选项随模型联动。
-- 未配置 Client Key 时点击生成，确认出现设置弹层且没有发出 API 请求。
-- 配置测试用 Client Key 后提交一个低成本任务，确认状态从“已提交/生成中”变为“已完成”或显示明确错误，并确认记录在关闭、重开侧边栏后仍存在。
+### 4. 排查生成任务
 
-真实生成会调用 FLAQ API 并可能产生费用。不要使用生产密钥进行日常 UI 验证，也不要把 Client Key 写入源码、日志或截图。
+Side Panel 的 DevTools Console 会输出以 `[FLAQ generation]` 开头的结构化日志。一次正常视频任务应依次出现 `submit.started`、`submit.accepted`、`history.pending-written`、`polling.started`、状态变化和一个终态事件。日志只保留关联 ID、任务 ID 前八位、状态、次数与耗时，不记录提示词、媒体 URL、Client Key 或 R2 凭据。完整字段和分享规范见 [`docs/generation-logging.md`](docs/generation-logging.md)。
 
-### 4. 调试入口
+## 生产构建
 
-- Side Panel：在面板内右键选择“检查”，查看 React 页面 Console 和 Network。
-- Service Worker：在扩展管理页打开扩展详情，点击 `service worker` 的“检查视图”，调试安装、右键菜单和 Side Panel 唤起逻辑。
-- 权限与存储：在 DevTools Application 面板检查 Extension Storage；确认网络请求仅发送到 `https://api.flaq.ai/*`。
+生产构建必须显式指定公开站点 Origin：
+
+```bash
+VITE_SIDEPANEL_SITE_URL=https://creator.example.com pnpm build:production
+```
+
+也可将该变量写入本地且不提交的 `.env.production.local`。缺少变量时生产构建会直接失败，防止发布指向 localhost 的扩展。
+
+生产站点必须允许扩展 iframe 嵌入：不要返回 `X-Frame-Options: DENY/SAMEORIGIN`，并确保 CSP `frame-ancestors` 包含正式扩展 Origin。发布前检查生成的 `dist/manifest.json`，确认 `frame-src` 仅包含配置的站点 Origin。
 
 ## 发布前检查
 
 ```bash
 pnpm typecheck
 pnpm test
-pnpm build
+VITE_SIDEPANEL_SITE_URL=https://creator.example.com pnpm build:production
 ```
 
-确认 `dist/manifest.json` 的版本号、权限和图标正确，扩展管理页无错误，并至少完成一次 Chrome 的真实 Side Panel 流程。UI 改动还应在约 350px 常用侧栏宽度和 300px 最小宽度下检查横向溢出。
+确认 Manifest 版本、15 个 `_locales` 目录、图标和权限正确，并至少完成一次 Chrome 的真实 Side Panel 全页面流程。

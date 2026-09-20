@@ -1,17 +1,17 @@
 {
   "manifest_version": 3,
-  "name": "FLAQ AI Creator",
-  "description": "在浏览网页时，从侧边栏快速生成 AI 图片和视频。",
+  "name": "__MSG_extensionName__",
+  "description": "__MSG_extensionDescription__",
   "version": "0.1.0",
+  "default_locale": "en",
   "minimum_chrome_version": "116",
-  "permissions": ["sidePanel", "storage", "activeTab", "scripting", "contextMenus"],
-  "host_permissions": ["https://api.flaq.ai/*"],
+  "permissions": ["sidePanel"],
   "background": {
     "service_worker": "background.js",
     "type": "module"
   },
   "action": {
-    "default_title": "打开 FLAQ AI Creator",
+    "default_title": "__MSG_extensionName__",
     "default_icon": {
       "16": "icons/icon-16.png",
       "32": "icons/icon-32.png",
@@ -29,6 +29,6 @@
     "128": "icons/icon-128.png"
   },
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src http://localhost:3000; frame-src http://localhost:3000;"
   }
 }
