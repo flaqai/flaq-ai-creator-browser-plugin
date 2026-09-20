@@ -19,7 +19,7 @@ Keep the extension a thin website container. Product features, API access, crede
 Use the pinned pnpm version from `package.json`.
 
 - `pnpm install` installs the extension, then installs the isolated SaaS project from its own lockfile.
-- `pnpm dev` starts the SaaS site on port 3000 and the side-panel preview on port 5173.
+- `pnpm dev` builds the unpacked extension, starts the SaaS site on `FLAQ_SITE_PORT` (default 3000), and starts the side-panel preview on port 5173. The shared port keeps the server, iframe URL, and generated CSP aligned.
 - `pnpm dev:site` or `pnpm dev:extension` starts only one side of the local environment.
 - `pnpm smoke:site` starts the embedded site, rejects watcher failures, and requires an HTTP 200 response.
 - `pnpm typecheck` runs strict TypeScript validation without emitting files.

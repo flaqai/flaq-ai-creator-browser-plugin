@@ -111,7 +111,7 @@ export default function ReferenceMediaPicker({
   isHistoryLoading,
   historyAssets,
   localMediaAssets = [],
-  onUploadFromDevice,
+  uploadInputId,
   onDeleteLocalMedia,
   onSelectLocalMedia,
   onSelectHistory,
@@ -126,7 +126,7 @@ export default function ReferenceMediaPicker({
   isHistoryLoading: boolean;
   historyAssets: UnifiedGeneratorReferenceMediaAsset[];
   localMediaAssets?: LocalMediaUploadItem[];
-  onUploadFromDevice: () => void;
+  uploadInputId: string;
   onDeleteLocalMedia?: (id: string) => void;
   onSelectLocalMedia?: (url: string, name?: string) => void;
   onSelectHistory: (asset: UnifiedGeneratorReferenceMediaAsset) => void;
@@ -187,15 +187,20 @@ export default function ReferenceMediaPicker({
         <div className='custom-scrollbar mt-3 max-h-[260px] overflow-y-auto'>
           {tab === 'upload' || !supportsHistory ? (
             <div className='flex flex-col gap-1'>
-              <button
-                type='button'
-                onClick={onUploadFromDevice}
-                disabled={!canAdd || isUploading}
-                className='bg-color-c3 text-color-t2 hover:bg-color-c4 hover:text-color-t1 flex h-11 w-full items-center gap-2 rounded-xl px-3 text-sm transition-colors disabled:pointer-events-none disabled:opacity-50'
+              <label
+                htmlFor={uploadInputId}
+                aria-disabled={!canAdd || isUploading}
+                onClick={(event) => {
+                  if (!canAdd || isUploading) event.preventDefault();
+                }}
+                className={cn(
+                  'bg-color-c3 text-color-t2 hover:bg-color-c4 hover:text-color-t1 flex h-11 w-full cursor-pointer items-center gap-2 rounded-xl px-3 text-sm transition-colors',
+                  (!canAdd || isUploading) && 'pointer-events-none cursor-not-allowed opacity-50',
+                )}
               >
                 <Plus className='size-4' />
                 {t('uploadFromDevice')}
-              </button>
+              </label>
               {kind !== 'audio' && onSelectLocalMedia ? (
                 visibleLocalMediaAssets.length > 0 ? (
                   visibleLocalMediaAssets.map((item) => (

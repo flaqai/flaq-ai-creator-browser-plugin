@@ -4,7 +4,7 @@ import path from 'node:path';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 
-const DEVELOPMENT_SITE_URL = 'http://localhost:3000';
+import { resolveDevelopmentSiteOrigin } from './scripts/site-config.mjs';
 
 function getSiteUrl(mode: string) {
   const env = loadEnv(mode, process.cwd(), '');
@@ -14,7 +14,7 @@ function getSiteUrl(mode: string) {
     throw new Error('VITE_SIDEPANEL_SITE_URL is required for a production extension build.');
   }
 
-  const siteUrl = configuredUrl || DEVELOPMENT_SITE_URL;
+  const siteUrl = configuredUrl || resolveDevelopmentSiteOrigin({ ...env, ...process.env });
   const parsed = new URL(siteUrl);
   if (!['http:', 'https:'].includes(parsed.protocol)) {
     throw new Error('VITE_SIDEPANEL_SITE_URL must use http or https.');

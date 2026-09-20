@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useId, useMemo, useRef, useState } from 'react';
 import { nanoid } from 'nanoid';
 import { useDropzone, type Accept, type FileRejection } from 'react-dropzone';
 import { useTranslations } from 'next-intl';
@@ -114,6 +114,9 @@ export default function ReferenceMediaUploads({
   onAudiosChange: (assets: UnifiedGeneratorReferenceMediaAsset[]) => void;
 }) {
   const t = useTranslations('components.hero-form.reference-upload');
+  const imageInputId = useId();
+  const videoInputId = useId();
+  const audioInputId = useId();
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
@@ -315,6 +318,7 @@ export default function ReferenceMediaUploads({
     const list = getList(kind);
     const max = getMax(kind);
     const inputRef = kind === 'image' ? imageInputRef : kind === 'video' ? videoInputRef : audioInputRef;
+    const inputId = kind === 'image' ? imageInputId : kind === 'video' ? videoInputId : audioInputId;
     const historyAssets = kind === 'image' ? imageHistoryAssets : kind === 'video' ? videoHistoryAssets : [];
     const historyLoading = kind === 'image' ? imageHistory.isLoading : kind === 'video' ? videoHistory.isLoading : false;
     const dropzone = kind === 'image' ? imageDropzone : kind === 'video' ? videoDropzone : audioDropzone;
@@ -322,6 +326,7 @@ export default function ReferenceMediaUploads({
     return (
       <div {...dropzone.getRootProps()} className='shrink-0'>
         <input
+          id={inputId}
           ref={inputRef}
           type='file'
           accept={getInputAccept(kind, acceptedFormats(kind))}
@@ -331,16 +336,19 @@ export default function ReferenceMediaUploads({
             void appendSources(kind, Array.from(event.target.files || []));
             event.target.value = '';
           }}
+          onClick={(event) => {
+            event.currentTarget.value = '';
+          }}
         />
         <ReferenceMediaPicker
           open={pickerKind === kind}
           onOpenChange={(open) => setPickerKind(open ? kind : null)}
           onPanelHoverChange={(hovered) => setHoveredPickerKind(hovered ? kind : null)}
           kind={kind}
+          uploadInputId={inputId}
           canAdd={list.length < max}
           isHistoryLoading={historyLoading}
           historyAssets={historyAssets}
-          onUploadFromDevice={() => inputRef.current?.click()}
           onSelectHistory={(asset) => void appendSources(kind, [asset.source])}
           trigger={
             <ReferenceStackPreview

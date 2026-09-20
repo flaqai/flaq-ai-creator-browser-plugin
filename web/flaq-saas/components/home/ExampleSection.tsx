@@ -248,12 +248,12 @@ export default function ExampleSection({
       <div className='mt-9'>
         {/* Title and navigation buttons */}
         <div className='mx-auto max-w-[1200px] px-4 flex items-start justify-between'>
-          <div className="flex flex-col items-start text-left mx-0">
-            <h2 className="text-[18px] font-semibold text-white md:text-[18px] md:leading-[26px] md:tracking-[0.36px]">
+          <div className='flex flex-col items-start text-left mx-0'>
+            <h2 className='text-[18px] font-semibold text-white md:text-[18px] md:leading-[26px] md:tracking-[0.36px]'>
               {imageExamplesTitle}
             </h2>
             {imageExamplesDescription && (
-              <p className="mt-1 text-[14px] font-normal text-[#B8B8B8]">
+              <p className='mt-1 text-[14px] font-normal text-[#B8B8B8]'>
                 {imageExamplesDescription}
               </p>
             )}

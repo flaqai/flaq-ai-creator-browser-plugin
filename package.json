@@ -6,7 +6,7 @@
   "scripts": {
     "postinstall": "pnpm --dir web/flaq-saas install --frozen-lockfile",
     "dev": "node scripts/dev.mjs",
-    "dev:site": "WATCHPACK_POLLING=true pnpm --dir web/flaq-saas exec next dev -p 3000",
+    "dev:site": "node scripts/dev-site.mjs",
     "dev:extension": "vite --host 127.0.0.1 --mode development",
     "build": "pnpm run build:dev",
     "build:dev": "tsc -b && vite build --mode development",

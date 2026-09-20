@@ -1,6 +1,7 @@
 'use client';
 
 import { toast } from 'sonner';
+import { logGenerationEvent } from '@/lib/generation-log';
 import { getClientOpenApiConfigAsync } from '@/network/clientFetch';
 import { getImageTask } from '@/network/image/client';
 import {
@@ -28,6 +29,9 @@ type PollingTask = {
 const POLLING_INTERVAL = 3000;
 const TASK_TIMEOUT = 5 * 60 * 1000;
 const activePolls = new Map<string, number>();
+const pollAttempts = new Map<string, number>();
+const pollOperationIds = new Map<string, string>();
+const lastStatuses = new Map<string, string>();
 
 function finishTask(traceId: string) {
   const timeout = activePolls.get(traceId);
@@ -35,6 +39,9 @@ function finishTask(traceId: string) {
     window.clearTimeout(timeout);
   }
   activePolls.delete(traceId);
+  pollAttempts.delete(traceId);
+  pollOperationIds.delete(traceId);
+  lastStatuses.delete(traceId);
   useGenerationPollingStore.getState().remove(traceId);
 }
 
@@ -46,10 +53,17 @@ function scheduleNext(task: PollingTask) {
 }
 
 async function pollTask(task: PollingTask): Promise<void> {
+  const operationId = pollOperationIds.get(task.traceId) || `restored-${task.traceId.slice(0, 8)}`;
+  const attempt = (pollAttempts.get(task.traceId) || 0) + 1;
+  pollAttempts.set(task.traceId, attempt);
   try {
     if (Date.now() - task.submitTime > TASK_TIMEOUT) {
       if (task.type === 'image') failImageHistory(task.traceId, 'Task timeout');
       if (task.type === 'video') failVideoHistory(task.traceId, 'Task timeout');
+      logGenerationEvent({
+        phase: 'polling.timeout', operationId, mediaType: task.type, taskId: task.traceId, attempt,
+        elapsedMs: Date.now() - task.submitTime,
+      });
       finishTask(task.traceId);
       return;
     }
@@ -58,6 +72,10 @@ async function pollTask(task: PollingTask): Promise<void> {
 
     if (task.type === 'image') {
       const res = await getImageTask(config, task.traceId);
+      if (lastStatuses.get(task.traceId) !== res.data.task_status) {
+        lastStatuses.set(task.traceId, res.data.task_status);
+        logGenerationEvent({ phase: 'polling.status', operationId, mediaType: 'image', taskId: task.traceId, attempt, status: res.data.task_status });
+      }
       if (res.data.task_status === 'succeed') {
         const result = res.data.task_result?.images?.[0];
         completeImageHistory(task.traceId, {
@@ -65,12 +83,17 @@ async function pollTask(task: PollingTask): Promise<void> {
           thumbnailUrl: result?.thumbnail_url,
           resolution: result?.resolution,
         });
+        logGenerationEvent({ phase: 'polling.completed', operationId, mediaType: 'image', taskId: task.traceId, attempt, elapsedMs: Date.now() - task.submitTime });
         finishTask(task.traceId);
         return;
       }
 
       if (res.data.task_status === 'failed') {
         failImageHistory(task.traceId, res.data.task_status_msg || undefined);
+        logGenerationEvent({
+          phase: 'polling.failed', operationId, mediaType: 'image', taskId: task.traceId, attempt,
+          error: res.data.task_status_msg,
+        });
         finishTask(task.traceId);
         if (res.data.task_status_msg) toast.error(res.data.task_status_msg);
         return;
@@ -81,6 +104,10 @@ async function pollTask(task: PollingTask): Promise<void> {
     }
 
     const res = await getVideoTask(config, task.traceId);
+    if (lastStatuses.get(task.traceId) !== res.data.task_status) {
+      lastStatuses.set(task.traceId, res.data.task_status);
+      logGenerationEvent({ phase: 'polling.status', operationId, mediaType: 'video', taskId: task.traceId, attempt, status: res.data.task_status });
+    }
     if (res.data.task_status === 'succeed') {
       const result = res.data.task_result?.videos?.[0];
       completeVideoHistory(task.traceId, {
@@ -89,12 +116,17 @@ async function pollTask(task: PollingTask): Promise<void> {
         duration: result?.duration,
         ratio: result?.ratio,
       });
+      logGenerationEvent({ phase: 'polling.completed', operationId, mediaType: 'video', taskId: task.traceId, attempt, elapsedMs: Date.now() - task.submitTime });
       finishTask(task.traceId);
       return;
     }
 
     if (res.data.task_status === 'failed') {
       failVideoHistory(task.traceId, res.data.task_status_msg || undefined);
+      logGenerationEvent({
+        phase: 'polling.failed', operationId, mediaType: 'video', taskId: task.traceId, attempt,
+        error: res.data.task_status_msg,
+      });
       finishTask(task.traceId);
       if (res.data.task_status_msg) toast.error(res.data.task_status_msg);
       return;
@@ -107,16 +139,23 @@ async function pollTask(task: PollingTask): Promise<void> {
       const errorMsg = 'Please configure your Flaq client key in settings first.';
       if (task.type === 'image') failImageHistory(task.traceId, errorMsg);
       if (task.type === 'video') failVideoHistory(task.traceId, errorMsg);
+      logGenerationEvent({ phase: 'polling.failed', operationId, mediaType: task.type, taskId: task.traceId, attempt, error });
       finishTask(task.traceId);
       return;
     }
 
     // Retry on other errors
+    logGenerationEvent({ phase: 'polling.retry', operationId, mediaType: task.type, taskId: task.traceId, attempt, error });
     scheduleNext(task);
   }
 }
 
-export async function startTaskPolling(traceId: string, type: 'image' | 'video', submitTime = Date.now()) {
+export async function startTaskPolling(
+  traceId: string,
+  type: 'image' | 'video',
+  submitTime = Date.now(),
+  operationId = `restored-${traceId.slice(0, 8)}`,
+) {
   if (typeof window === 'undefined') return;
   if (!traceId || activePolls.has(traceId)) return;
 
@@ -127,9 +166,12 @@ export async function startTaskPolling(traceId: string, type: 'image' | 'video',
     const errorMsg = 'Please configure your Flaq client key in settings first.';
     if (type === 'image') failImageHistory(traceId, errorMsg);
     if (type === 'video') failVideoHistory(traceId, errorMsg);
+    logGenerationEvent({ phase: 'polling.failed', operationId, mediaType: type, taskId: traceId, error });
     return;
   }
 
+  pollOperationIds.set(traceId, operationId);
+  logGenerationEvent({ phase: 'polling.started', operationId, mediaType: type, taskId: traceId });
   useGenerationPollingStore.getState().add(traceId, type);
   void pollTask({ traceId, type, submitTime });
 }
@@ -158,4 +200,7 @@ export function stopAllTaskPolling() {
     window.clearTimeout(timeout);
   });
   activePolls.clear();
+  pollAttempts.clear();
+  pollOperationIds.clear();
+  lastStatuses.clear();
 }

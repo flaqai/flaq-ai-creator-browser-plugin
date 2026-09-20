@@ -1,7 +1,6 @@
 'use client';
 
 /* eslint-disable react/function-component-definition */
-/* eslint-disable @typescript-eslint/indent */
 import { forwardRef, ForwardRefRenderFunction, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import useImageFormStore from '@/store/form/useImageFormStore';
 import { CircleX, Upload } from 'lucide-react';

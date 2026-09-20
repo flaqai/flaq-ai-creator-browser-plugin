@@ -159,7 +159,7 @@ export default function useVideoFormSubmit(options: UseVideoFormSubmitOptions) {
       // Pop URLs in reverse order of upload
       let startFrameUrl = '';
       let endFrameUrl = '';
-      let clothesChangerImageUrl = '';
+      const clothesChangerImageUrl = '';
       let audioUrl = '';
       const imageUrlList: string[] = [];
 
@@ -170,7 +170,7 @@ export default function useVideoFormSubmit(options: UseVideoFormSubmitOptions) {
 
       // Handle multi-image URL list (pop in reverse order of upload)
       if (formData.multiImages && formData.multiImages.length > 0) {
-        // eslint-disable-next-line no-plusplus
+
         for (let i = 0; i < formData.multiImages.length; i++) {
           const url = uploadedUrls.pop();
           if (url) imageUrlList.unshift(url); // unshift to maintain correct order

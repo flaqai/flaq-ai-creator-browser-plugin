@@ -44,12 +44,20 @@ pnpm install
 pnpm dev
 ```
 
-该命令固定启动：
+该命令默认启动：
 
 - SaaS：<http://localhost:3000/ai-media-creator/>
 - 插件预览：<http://127.0.0.1:5173/sidepanel.html>
 
 按 `Ctrl+C` 会同时停止两个进程。也可以分别运行 `pnpm dev:site` 或 `pnpm dev:extension`。
+
+端口由唯一的 `FLAQ_SITE_PORT` 配置控制。`pnpm dev` 会先用同一个端口重新构建 `dist/`，再启动 SaaS 和插件预览，确保 Next.js 监听端口、iframe URL 与扩展 CSP 始终一致。默认值为 `3000`；需要覆盖时只设置一次：
+
+```bash
+FLAQ_SITE_PORT=3100 pnpm dev
+```
+
+修改端口后需在 `chrome://extensions/` 对已加载的扩展点击一次“重新加载”，让 Chrome 读取新生成的 `dist/manifest.json`。
 
 SaaS 启动烟测：
 
@@ -79,7 +87,7 @@ pnpm test
 pnpm build:dev
 ```
 
-`dist/manifest.json` 的 `frame-src` 应只包含 `http://localhost:3000`。
+`dist/manifest.json` 的 `frame-src` 应只包含当前开发 Origin；默认是 `http://localhost:3000`。如果使用 `FLAQ_SITE_PORT` 覆盖端口，构建产物会同步使用对应 Origin。
 
 ### 2. 加载未打包扩展
 
@@ -101,6 +109,10 @@ pnpm build:dev
 - Side Panel Console 与扩展 Service Worker Console 无错误。
 
 真实生成由参考网站调用 FLAQ API，可能产生费用；普通布局验证无需提交生成任务。
+
+### 4. 排查生成任务
+
+Side Panel 的 DevTools Console 会输出以 `[FLAQ generation]` 开头的结构化日志。一次正常视频任务应依次出现 `submit.started`、`submit.accepted`、`history.pending-written`、`polling.started`、状态变化和一个终态事件。日志只保留关联 ID、任务 ID 前八位、状态、次数与耗时，不记录提示词、媒体 URL、Client Key 或 R2 凭据。完整字段和分享规范见 [`docs/generation-logging.md`](docs/generation-logging.md)。
 
 ## 生产构建
 

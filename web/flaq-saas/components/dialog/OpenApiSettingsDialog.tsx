@@ -1,17 +1,24 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import {
+  buildOpenApiUrl,
+  createOpenApiHeaders,
+  DEFAULT_OPEN_API_BASE_URL,
+  OPEN_API_BASE_URL_STORAGE_KEY,
+  OPEN_API_CLIENT_KEY_STORAGE_KEY,
+} from '@/network/clientFetch';
+import { ChevronDown, ChevronRight, ExternalLink, KeyRound, PlugZap, UserRound } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
 import {
-  DEFAULT_OPEN_API_BASE_URL,
-  OPEN_API_BASE_URL_STORAGE_KEY,
-  OPEN_API_CLIENT_KEY_STORAGE_KEY,
-  buildOpenApiUrl,
-  createOpenApiHeaders,
-} from '@/network/clientFetch';
+  clearAllSecureStorage,
+  getSecureItem,
+  isRememberMeEnabled,
+  removeSecureItem,
+  setSecureItem,
+} from '@/lib/utils/secureStorage';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -23,13 +30,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import {
-  setSecureItem,
-  getSecureItem,
-  removeSecureItem,
-  isRememberMeEnabled,
-  clearAllSecureStorage,
-} from '@/lib/utils/secureStorage';
 
 const FLAQ_REGISTER_URL = 'https://flaq.ai/';
 const R2_PUBLIC_DOMAIN_STORAGE_KEY = 'FLAQ-SAAS-TEMPLATE-r2-public-domain';
@@ -37,20 +37,20 @@ const R2_PUBLIC_DOMAIN_STORAGE_KEY = 'FLAQ-SAAS-TEMPLATE-r2-public-domain';
 function isAuthError(status: number, message: string) {
   const normalizedMessage = message.toLowerCase();
   return (
-    status === 401
-    || status === 403
-    || normalizedMessage.includes('unauthorized')
-    || normalizedMessage.includes('authentication')
-    || normalizedMessage.includes('authenticate')
-    || normalizedMessage.includes('invalid client key')
-    || normalizedMessage.includes('invalid api key')
-    || normalizedMessage.includes('invalid key')
-    || normalizedMessage.includes('forbidden')
-    || normalizedMessage.includes('未认证')
-    || normalizedMessage.includes('鉴权')
-    || normalizedMessage.includes('认证')
-    || normalizedMessage.includes('无效的client key')
-    || normalizedMessage.includes('client key无效')
+    status === 401 ||
+    status === 403 ||
+    normalizedMessage.includes('unauthorized') ||
+    normalizedMessage.includes('authentication') ||
+    normalizedMessage.includes('authenticate') ||
+    normalizedMessage.includes('invalid client key') ||
+    normalizedMessage.includes('invalid api key') ||
+    normalizedMessage.includes('invalid key') ||
+    normalizedMessage.includes('forbidden') ||
+    normalizedMessage.includes('未认证') ||
+    normalizedMessage.includes('鉴权') ||
+    normalizedMessage.includes('认证') ||
+    normalizedMessage.includes('无效的client key') ||
+    normalizedMessage.includes('client key无效')
   );
 }
 
@@ -59,10 +59,7 @@ type OpenApiSettingsDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-export default function OpenApiSettingsDialog({
-  open,
-  onOpenChange,
-}: OpenApiSettingsDialogProps) {
+export default function OpenApiSettingsDialog({ open, onOpenChange }: OpenApiSettingsDialogProps) {
   const t = useTranslations('components.open-api-settings');
   const tHosting = useTranslations('components.image-hosting');
   const tCommon = useTranslations('Common');
@@ -70,12 +67,16 @@ export default function OpenApiSettingsDialog({
   const [clientKey, setClientKey] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
-  const [hostingExpanded, setHostingExpanded] = useState(false);
+  const [securityNoticeExpanded, setSecurityNoticeExpanded] = useState(false);
+  const [hostingExpanded, setHostingExpanded] = useState(true);
   const [r2PublicDomain, setR2PublicDomain] = useState('');
   const [isTestingR2, setIsTestingR2] = useState(false);
 
   useEffect(() => {
     if (!open || typeof window === 'undefined') return;
+
+    setSecurityNoticeExpanded(false);
+    setHostingExpanded(true);
 
     const loadSettings = async () => {
       const savedBaseUrl = await getSecureItem(OPEN_API_BASE_URL_STORAGE_KEY);
@@ -149,9 +150,11 @@ export default function OpenApiSettingsDialog({
         },
       );
 
-      const payload = await response.json().catch(() => null) as
-        | { error?: { message?: string }; message?: string; msg?: string }
-        | null;
+      const payload = (await response.json().catch(() => null)) as {
+        error?: { message?: string };
+        message?: string;
+        msg?: string;
+      } | null;
       const message = payload?.error?.message || payload?.message || payload?.msg || response.statusText;
 
       if (response.ok) {
@@ -178,7 +181,7 @@ export default function OpenApiSettingsDialog({
 
     try {
       const response = await fetch('/api/upload/test-r2', { method: 'GET' });
-      const result = await response.json() as { ok?: boolean; error?: string };
+      const result = (await response.json()) as { ok?: boolean; error?: string };
 
       if (response.ok && result.ok) {
         toast.success(tHosting('test-success'));
@@ -197,18 +200,43 @@ export default function OpenApiSettingsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         hiddenTitle={t('title')}
-        className='max-h-[90vh] overflow-y-auto border-white/10 bg-[#111214] text-white sm:max-w-[520px]'
+        className='max-h-[90vh] overflow-y-auto border-white/10 bg-[#111214] text-white sm:max-w-[600px]'
       >
         <DialogHeader className='space-y-2 text-left'>
-          <DialogTitle className='text-xl font-semibold text-white'>
-            {t('title')}
-          </DialogTitle>
-          <DialogDescription className='text-sm text-white/60'>
-            {t('description')}
-          </DialogDescription>
+          <DialogTitle className='text-xl font-semibold text-white'>{t('title')}</DialogTitle>
+          <DialogDescription className='text-sm text-white/60'>{t('description')}</DialogDescription>
         </DialogHeader>
 
         <div className='space-y-4'>
+          <div className='rounded-xl border border-white/10 bg-white/[0.035] p-4'>
+            <div className='grid gap-3 min-[480px]:grid-cols-3'>
+              {[
+                { icon: UserRound, text: t('step-account') },
+                { icon: KeyRound, text: t('step-key') },
+                { icon: PlugZap, text: t('step-create') },
+              ].map(({ icon: Icon, text }, index) => (
+                <div key={text} className='flex gap-2.5 text-xs leading-5 text-white/55'>
+                  <span className='flex size-6 shrink-0 items-center justify-center rounded-md bg-white/8 text-white/70'>
+                    <Icon className='size-3.5' aria-hidden='true' />
+                  </span>
+                  <span>
+                    <b className='me-1 text-white/35'>{index + 1}.</b>
+                    {text}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <a
+              href={FLAQ_REGISTER_URL}
+              target='_blank'
+              rel='noreferrer'
+              className='mt-4 flex items-center justify-center gap-2 rounded-lg bg-white px-3 py-2.5 text-sm font-semibold text-black transition hover:bg-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white'
+            >
+              {t('register')}
+              <ExternalLink className='size-3.5' aria-hidden='true' />
+            </a>
+          </div>
+
           <div className='space-y-2'>
             <label htmlFor='open-api-base-url' className='text-sm font-medium text-white/80'>
               {t('base-url')}
@@ -220,9 +248,7 @@ export default function OpenApiSettingsDialog({
               placeholder={DEFAULT_OPEN_API_BASE_URL}
               className='h-11 border-white/10 bg-white/5 text-white placeholder:text-white/30'
             />
-            <p className='text-xs text-white/45'>
-              {t('base-url-hint')}
-            </p>
+            <p className='text-xs text-white/45'>{t('base-url-hint')}</p>
           </div>
 
           <div className='space-y-2'>
@@ -237,44 +263,43 @@ export default function OpenApiSettingsDialog({
               className='h-11 border-white/10 bg-white/5 text-white placeholder:text-white/30'
             />
 
-            <div className='flex items-center space-x-2 pt-2'>
+            <div className='flex flex-wrap items-center gap-x-2 gap-y-1 pt-2'>
               <Checkbox
                 id='remember-me'
                 checked={rememberMe}
                 onCheckedChange={(checked) => setRememberMe(checked === true)}
               />
-              <label
-                htmlFor='remember-me'
-                className='text-sm text-white/70 cursor-pointer'
-              >
+              <label htmlFor='remember-me' className='cursor-pointer text-sm text-white/70'>
                 {t('remember-me')}
               </label>
-            </div>
-            <p className='text-xs text-white/45'>
-              {t('remember-me-hint')}
-            </p>
-
-            <div className='rounded-md border border-yellow-500/20 bg-yellow-500/5 p-3 mt-3'>
-              <p className='text-xs text-yellow-200/80'>
-                ⚠️ {t('security-warning')}
-              </p>
               <button
                 type='button'
-                onClick={handleClearAll}
-                className='mt-2 text-xs text-red-400 hover:text-red-300 underline'
+                aria-expanded={securityNoticeExpanded}
+                aria-controls='client-key-security-notice'
+                onClick={() => setSecurityNoticeExpanded((previous) => !previous)}
+                className='text-sm font-medium text-blue-400 underline decoration-blue-400/35 underline-offset-4 transition-colors hover:text-blue-300 hover:decoration-blue-300 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400'
               >
-                {t('clear-data')}
+                {t('security-notice')}
               </button>
             </div>
+            <p className='text-xs text-white/45'>{t('remember-me-hint')}</p>
 
-            <Button
-              asChild
-              className='mt-3 h-11 w-full bg-color-main text-white hover:bg-color-main/90'
-            >
-              <a href={FLAQ_REGISTER_URL} target='_blank' rel='noreferrer'>
-                {t('register')}
-              </a>
-            </Button>
+            {securityNoticeExpanded ? (
+              <div
+                id='client-key-security-notice'
+                role='note'
+                className='mt-3 rounded-md border border-[#735c28] bg-[#292211] p-3'
+              >
+                <p className='text-xs leading-5 text-[#fde68a]'>⚠️ {t('security-warning')}</p>
+                <button
+                  type='button'
+                  onClick={handleClearAll}
+                  className='mt-2 text-xs text-red-300 underline underline-offset-2 hover:text-red-200'
+                >
+                  {t('clear-data')}
+                </button>
+              </div>
+            ) : null}
           </div>
 
           <div className='rounded-md border border-white/10'>
@@ -284,13 +309,11 @@ export default function OpenApiSettingsDialog({
               className='flex w-full items-center justify-between px-3 py-2.5 text-sm font-medium text-white/70 hover:text-white/90'
             >
               <span>{tHosting('title')}</span>
-              {hostingExpanded
-                ? <ChevronDown className='h-4 w-4' />
-                : <ChevronRight className='h-4 w-4' />}
+              {hostingExpanded ? <ChevronDown className='h-4 w-4' /> : <ChevronRight className='h-4 w-4' />}
             </button>
 
             {hostingExpanded && (
-              <div className='space-y-2 border-t border-white/10 px-3 pb-3 pt-3'>
+              <div className='space-y-2 border-t border-white/10 px-3 pt-3 pb-3'>
                 <label htmlFor='r2-public-domain' className='text-sm font-medium text-white/80'>
                   {tHosting('public-domain')}
                 </label>
@@ -301,12 +324,8 @@ export default function OpenApiSettingsDialog({
                   placeholder={tHosting('public-domain-placeholder')}
                   className='h-11 border-white/10 bg-white/5 text-white placeholder:text-white/30'
                 />
-                <p className='text-xs text-white/45'>
-                  {tHosting('public-domain-hint')}
-                </p>
-                <p className='text-xs text-white/30'>
-                  {tHosting('not-configured')}
-                </p>
+                <p className='text-xs text-white/45'>{tHosting('public-domain-hint')}</p>
+                <p className='text-xs text-white/30'>{tHosting('not-configured')}</p>
                 <Button
                   type='button'
                   variant='outline'
@@ -348,11 +367,7 @@ export default function OpenApiSettingsDialog({
             >
               {t('cancel')}
             </Button>
-            <Button
-              type='button'
-              onClick={handleSave}
-              className='bg-white text-black hover:bg-white/90'
-            >
+            <Button type='button' onClick={handleSave} className='bg-white text-black hover:bg-white/90'>
               {t('save')}
             </Button>
           </div>

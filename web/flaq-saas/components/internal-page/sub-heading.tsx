@@ -28,7 +28,7 @@ export default function SubHeading({
         )}
       >
         {icon && (
-          <div className="flex items-center">
+          <div className='flex items-center'>
             {icon}
           </div>
         )}

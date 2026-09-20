@@ -43,7 +43,8 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json() as { mimeTypes?: string[]; publicDomain?: string };
-  const { mimeTypes, publicDomain } = body;
+  const { mimeTypes } = body;
+  const publicDomain = body.publicDomain?.trim() || process.env.R2_PUBLIC_DOMAIN?.trim();
 
   if (!Array.isArray(mimeTypes) || mimeTypes.length === 0) {
     return NextResponse.json({ error: 'mimeTypes is required.' }, { status: 400 });

@@ -37,9 +37,6 @@ export async function createSignedUrl(
   }
 
   const publicDomain = await getSecureItem('FLAQ-SAAS-TEMPLATE-r2-public-domain');
-  if (!publicDomain) {
-    throw new Error('R2 public domain is not configured. Please set it in Open API Settings.');
-  }
 
   const response = await fetch('/api/upload/presigned-url', {
     method: 'POST',

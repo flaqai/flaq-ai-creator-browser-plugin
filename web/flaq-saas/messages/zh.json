@@ -97,6 +97,7 @@
       "remember-me": "记住我（存储到本地）",
       "remember-me-hint": "不勾选时，关闭标签页后将清除密钥。",
       "security-warning": "安全提示：您的 client key 已加密存储，但 XSS 攻击仍可能在 API 请求时拦截。请妥善保管密钥。",
+      "security-notice": "安全提示",
       "clear-data": "清除所有数据",
       "clear-data-confirm": "确定要清除所有已存储的设置吗？",
       "data-cleared": "所有存储数据已清除。",
@@ -109,7 +110,10 @@
       "saved": "Open API 设置已保存。",
       "test-success": "联通成功。",
       "test-success-validation": "联通成功，鉴权已通过，task 接口已返回响应。",
-      "test-failed": "联通失败。"
+      "test-failed": "联通失败。",
+      "step-account": "登录或注册 Flaq 账号",
+      "step-key": "创建并复制 Client Key",
+      "step-create": "粘贴密钥、测试连接，然后开始创作"
     },
     "image-hosting": {
       "title": "图床配置 (R2)",
@@ -1369,6 +1373,9 @@
     "image": "图片",
     "video": "视频",
     "no-preview": "暂无预览",
+    "processing": "生成中…",
+    "open-video": "播放生成的视频",
+    "failed": "生成失败",
     "empty": "暂无生成历史。",
     "loading-more": "正在加载更多...",
     "end": "没有更多结果"

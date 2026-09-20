@@ -165,8 +165,8 @@ export default function ImageDisplay() {
           <div className='relative flex flex-none flex-wrap items-start justify-between gap-2 rounded-b-xl bg-[#1c1d20] p-2 lg:items-center lg:gap-3'>
 
             {/* Left info: time, resolution, model */}
-            <div className="flex flex-col gap-1 text-xs text-white/60">
-              <div className="flex items-center gap-1.5">
+            <div className='flex flex-col gap-1 text-xs text-white/60'>
+              <div className='flex items-center gap-1.5'>
                 {imageObj.createTime && (
                   <span>{formatDate(imageObj.createTime)}</span>
                 )}
@@ -180,7 +180,7 @@ export default function ImageDisplay() {
                 ) : null}
               </div>
               {imageObj.modelName && (
-                <div className="text-white/80">
+                <div className='text-white/80'>
                   {tCommon('model')}: {getImageModelVersionName(imageObj.modelName) || imageObj.modelName}
                 </div>
               )}

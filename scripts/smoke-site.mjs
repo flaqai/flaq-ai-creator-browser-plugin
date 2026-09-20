@@ -1,5 +1,9 @@
 import { spawn } from 'node:child_process';
 
+import { resolveDevelopmentSiteOrigin } from './site-config.mjs';
+
+const siteOrigin = resolveDevelopmentSiteOrigin();
+
 const child = spawn('pnpm', ['run', 'dev:site'], {
   detached: process.platform !== 'win32',
   stdio: ['ignore', 'pipe', 'pipe'],
@@ -37,7 +41,7 @@ function inspect(chunk) {
   if (output.includes('Ready in') && !readyTimer) {
     readyTimer = setTimeout(async () => {
       try {
-        const response = await fetch('http://localhost:3000/ai-media-creator/');
+        const response = await fetch(`${siteOrigin}/ai-media-creator/`);
         finish(response.ok ? 0 : 1, `SaaS smoke response: ${response.status}`);
       } catch (error) {
         finish(1, `SaaS smoke request failed: ${error.message}`);

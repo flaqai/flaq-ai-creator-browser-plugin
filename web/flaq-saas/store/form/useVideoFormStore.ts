@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */
 import type { VideoHistoryRequest } from '@/network/video/history';
 import { create } from 'zustand';
 

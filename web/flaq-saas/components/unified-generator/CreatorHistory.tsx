@@ -8,6 +8,7 @@ import useImageHistory from '@/network/image/history';
 import useVideoHistory from '@/network/video/history';
 
 import CreatorVideoPreview from './CreatorVideoPreview';
+import { getCreatorVideoPresentation } from './creator-video-presentation';
 
 type HistoryType = 'image' | 'video';
 
@@ -85,16 +86,32 @@ export default function CreatorHistory() {
               ) : <div key={item.id}>{card}</div>;
             })
             : videoHistory.data.map((item) => {
+              const presentation = getCreatorVideoPresentation(item);
               const card = (
                 <div className='group relative aspect-video overflow-hidden rounded-xl border border-white/10 bg-white/5'>
-                  <CreatorVideoPreview item={item} noPreviewLabel={t('no-preview')} />
+                  <CreatorVideoPreview
+                    item={item}
+                    noPreviewLabel={t('no-preview')}
+                    processingLabel={t('processing')}
+                    completedLabel={t('open-video')}
+                    failedLabel={t('failed')}
+                  />
                   <div className='absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-3 pt-10'>
                     <p className='line-clamp-2 text-xs text-white/80'>{item.prompt}</p>
                   </div>
                 </div>
               );
-              return item.videoUrl ? (
-                <a key={item.id} href={item.videoUrl} target='_blank' rel='noopener noreferrer'>{card}</a>
+              return presentation.href ? (
+                <a
+                  key={item.id}
+                  href={presentation.href}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  aria-label={t('open-video')}
+                  className='block cursor-pointer rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400'
+                >
+                  {card}
+                </a>
               ) : <div key={item.id}>{card}</div>;
             })}
         </div>

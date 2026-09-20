@@ -5,7 +5,6 @@
 'use client';
 
 /* eslint-disable react/function-component-definition */
-/* eslint-disable @typescript-eslint/indent */
 import {
   forwardRef,
   ForwardRefRenderFunction,

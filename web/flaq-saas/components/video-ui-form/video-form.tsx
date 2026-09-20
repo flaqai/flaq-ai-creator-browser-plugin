@@ -1,6 +1,5 @@
 'use client';
 
-/* eslint-disable @typescript-eslint/indent */
 /* eslint-disable no-confusing-arrow */
 /* eslint-disable react/jsx-wrap-multilines */
 import { useCallback, useContext, useMemo, useRef, useState } from 'react';

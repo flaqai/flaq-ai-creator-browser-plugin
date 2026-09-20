@@ -11,6 +11,7 @@ import type {
 } from '@/lib/constants/unified-generator/types';
 import type { VideoGenerationType, VideoModel } from '@/lib/constants/video';
 import trimAudioFile from '@/lib/utils/audioUtils';
+import { createGenerationOperationId, logGenerationEvent } from '@/lib/generation-log';
 import {
   serializeReferencePrompt,
   validateReferencePromptReferences,
@@ -155,6 +156,9 @@ export default function useUnifiedGeneratorSubmit() {
       return false;
     }
 
+    const operationId = createGenerationOperationId();
+    const model = input.mediaType === 'image' ? input.imageModel?.model : input.videoModel?.model;
+    logGenerationEvent({ phase: 'submit.started', operationId, mediaType: input.mediaType, model });
     setIsSubmitting(true);
     try {
       if (input.mediaType === 'image') {
@@ -178,6 +182,10 @@ export default function useUnifiedGeneratorSubmit() {
         });
         if (response.code !== 0 || !response.data?.task_id) throw new Error(response.message);
 
+        logGenerationEvent({
+          phase: 'submit.accepted', operationId, mediaType: 'image', model: input.imageModel.model, taskId: response.data.task_id,
+        });
+
         addPendingImageHistory({
           id: response.data.task_id,
           taskId: response.data.task_id,
@@ -190,8 +198,9 @@ export default function useUnifiedGeneratorSubmit() {
           modelInfo: input.imageModel.name,
           userImageUrlList: imageUrls,
         });
-        startTaskPolling(response.data.task_id, 'image');
-        toast.success(response.message || t('submitted'));
+        logGenerationEvent({ phase: 'history.pending-written', operationId, mediaType: 'image', taskId: response.data.task_id });
+        startTaskPolling(response.data.task_id, 'image', Date.now(), operationId);
+        toast.success(t('submitted'));
         return true;
       }
 
@@ -287,6 +296,10 @@ export default function useUnifiedGeneratorSubmit() {
       });
       if (response.code !== 0 || !response.data?.task_id) throw new Error(response.message);
 
+      logGenerationEvent({
+        phase: 'submit.accepted', operationId, mediaType: 'video', model: model.model, taskId: response.data.task_id,
+      });
+
       addPendingVideoHistory({
         id: response.data.task_id,
         traceId: response.data.task_id,
@@ -307,10 +320,12 @@ export default function useUnifiedGeneratorSubmit() {
           : input.videoType === 'image-to-video' ? 'Image-to-video' : 'Text-to-video',
         ratio: input.ratio,
       });
-      startTaskPolling(response.data.task_id, 'video');
-      toast.success(response.message || t('submitted'));
+      logGenerationEvent({ phase: 'history.pending-written', operationId, mediaType: 'video', taskId: response.data.task_id });
+      startTaskPolling(response.data.task_id, 'video', Date.now(), operationId);
+      toast.success(t('submitted'));
       return true;
     } catch (error) {
+      logGenerationEvent({ phase: 'submit.failed', operationId, mediaType: input.mediaType, model, error });
       toast.error(error instanceof Error && error.message !== 'media-metadata'
         ? error.message
         : t('errors.media-metadata'));

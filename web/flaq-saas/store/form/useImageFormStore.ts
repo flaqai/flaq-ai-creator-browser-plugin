@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/indent */
 import { create } from 'zustand';
 
 import { ImageFormType } from '@/components/image-ui-form/image-context-provider';
