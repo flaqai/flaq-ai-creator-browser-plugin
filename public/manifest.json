@@ -6,6 +6,11 @@
   "default_locale": "en",
   "minimum_chrome_version": "116",
   "permissions": ["sidePanel"],
+  "host_permissions": [
+    "https://api.flaq.ai/*",
+    "https://*.r2.cloudflarestorage.com/*"
+  ],
+  "optional_host_permissions": ["http://*/*", "https://*/*"],
   "background": {
     "service_worker": "background.js",
     "type": "module"
@@ -29,6 +34,6 @@
     "128": "icons/icon-128.png"
   },
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src http://localhost:3000; frame-src http://localhost:3000;"
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline'; connect-src https: http:; frame-src 'self';"
   }
 }

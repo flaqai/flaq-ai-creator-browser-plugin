@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
-import { useTranslations } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 
 import { createLocalizedMetadata } from '@/lib/seo/metadata';
@@ -17,8 +16,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   });
 }
 
-export default function Page() {
-  const t = useTranslations('FooterNavigation.termsConditions');
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'FooterNavigation.termsConditions' });
 
   return (
     <div className='prose prose-headings:text-gray-200 mx-auto p-6 text-gray-200'>

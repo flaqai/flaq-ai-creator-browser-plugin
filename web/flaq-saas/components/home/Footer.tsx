@@ -56,7 +56,10 @@ export default function Footer() {
   const t = useTranslations('Footer');
   const locale = useLocale();
   const currentYear = new Date().getFullYear();
-  const languagePaths = generateLanguagePaths(BASE_URL, '');
+  const languagePaths = generateLanguagePaths(
+    process.env.NEXT_PUBLIC_EXTENSION_EXPORT === 'true' ? '/site' : BASE_URL,
+    '',
+  );
   const contactEmail = process.env.NEXT_PUBLIC_CONTACT_US_EMAIL;
 
   const FEATURE_LINK = [

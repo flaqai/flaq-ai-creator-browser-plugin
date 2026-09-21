@@ -9,37 +9,18 @@ import { maxSizeMB } from '../constants';
  * @param {String} filename - Name of the downloaded file (best to include extension for compatibility)
  */
 export function downloadFile(path: string, filename: string) {
-  // Use proxy API to avoid CORS issues
-  const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(path)}`;
-
-  const xhr = new XMLHttpRequest();
-  xhr.open('GET', proxyUrl, true);
-  xhr.responseType = 'blob'; // Get Blob data directly
-
-  xhr.onload = function () {
-    if (xhr.status === 200 || xhr.status === 304) {
-      const blob = xhr.response;
-      const downloadUrl = URL.createObjectURL(blob); // Create a URL from Blob
-
-      const a = document.createElement('a');
-      a.href = downloadUrl;
-      a.download = filename; // Set filename
-      document.body.appendChild(a);
-      a.click(); // Simulate click to trigger download
-
-      // Clean up resources
-      document.body.removeChild(a);
-      URL.revokeObjectURL(downloadUrl); // Release resources occupied by URL object
-    }
-  };
-
-  xhr.send();
+  const link = document.createElement('a');
+  link.href = path;
+  link.download = filename;
+  link.target = '_blank';
+  link.rel = 'noreferrer';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 
 export async function getFileByUrl(url: string): Promise<File> {
-  // Use proxy API to avoid CORS issues
-  const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(url)}`;
-  const response = await fetch(proxyUrl);
+  const response = await fetch(url);
 
   if (!response.ok) {
     throw new Error('Failed to fetch file');
@@ -140,21 +121,21 @@ export type ImageFormatType = 'WEBP' | 'PNG' | 'JPG';
  */
 export async function detectImageFormat(imageUrl: string): Promise<ImageFormatType | null> {
   try {
-    // Use proxy API to avoid CORS issues
-    const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`;
-    const response = await fetch(proxyUrl);
-    const blob = await response.blob();
-    const mimeType = blob.type;
-    const format = mimeType.split('/')[1]?.toLowerCase();
-
-    const formatMap: Record<string, ImageFormatType> = {
+    const extension = new URL(imageUrl).pathname.split('.').pop()?.toLowerCase();
+    const extensionMap: Record<string, ImageFormatType> = {
       webp: 'WEBP',
       png: 'PNG',
       jpeg: 'JPG',
       jpg: 'JPG',
     };
+    if (extension && extensionMap[extension]) return extensionMap[extension];
 
-    return formatMap[format] || null;
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+    const mimeType = blob.type;
+    const format = mimeType.split('/')[1]?.toLowerCase();
+
+    return extensionMap[format] || null;
   } catch (error) {
     console.error('Failed to detect image format:', error);
     return null;

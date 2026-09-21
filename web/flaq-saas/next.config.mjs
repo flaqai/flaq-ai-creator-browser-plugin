@@ -28,9 +28,17 @@ function parseImageRemotePatterns(value) {
 
 const imageRemotePatterns = parseImageRemotePatterns(process.env.IMAGE_REMOTE_PATTERNS);
 const allowLocalImageOptimization = process.env.ALLOW_LOCAL_IMAGE_OPTIMIZATION === 'true';
+const isExtensionExport = process.env.FLAQ_EXTENSION_EXPORT === 'true';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  ...(isExtensionExport
+    ? {
+        output: 'export',
+        basePath: '/site',
+        assetPrefix: '/site',
+      }
+    : {}),
   htmlLimitedBots: /.*/,
   turbopack: {
     root: projectRoot,
@@ -53,7 +61,7 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   images: {
-    unoptimized: false,
+    unoptimized: isExtensionExport,
     // Next 16 blocks image optimization for private IPs by default; enable via environment variable only if explicitly needed.
     dangerouslyAllowLocalIP: allowLocalImageOptimization,
     remotePatterns: imageRemotePatterns,

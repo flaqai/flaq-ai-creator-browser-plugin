@@ -8,6 +8,8 @@ import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import SubHeading from '@/components/internal-page/sub-heading';
 
+const MotionDiv = motion<React.HTMLAttributes<HTMLDivElement>>('div');
+
 export default function VideoCarousel({
   title,
   description,
@@ -67,14 +69,14 @@ export default function VideoCarousel({
             <ChevronLeft className='size-6 text-white/70' />
           </button>
           <AnimatePresence mode='wait'>
-            <motion.div
+            <MotionDiv
               key={currentIndex}
               initial={{ opacity: 0, x: 100 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -100 }}
               transition={{ duration: 0.25 }}
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
+              onHoverStart={() => setIsHovered(true)}
+              onHoverEnd={() => setIsHovered(false)}
               className='flex w-full flex-col gap-3 lg:flex-row lg:items-stretch lg:gap-5'
             >
               <div className='relative flex w-full gap-3 lg:w-[482px] lg:flex-col lg:gap-5'>
@@ -137,7 +139,7 @@ export default function VideoCarousel({
                   <video ref={preloadVideoRef} preload='auto' muted playsInline />
                 </div>
               </div>
-            </motion.div>
+            </MotionDiv>
           </AnimatePresence>
           <button
             type='button'

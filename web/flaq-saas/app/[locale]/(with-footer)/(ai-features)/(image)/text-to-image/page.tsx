@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { createLocalizedMetadata } from '@/lib/seo/metadata';
 import { numberList } from '@/lib/utils/arrayUtils';
@@ -78,8 +78,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   });
 }
 
-export default async function Page() {
-  const t = await getTranslations('text-to-image');
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: 'text-to-image' });
 
   return (
     <div className='flex-1'>

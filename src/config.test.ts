@@ -17,5 +17,10 @@ describe('side-panel site configuration', () => {
     expect(buildCreatorUrl('https://creator.example', 'ja-JP')).toBe(
       'https://creator.example/ja/ai-media-creator/',
     );
+    expect(
+      buildCreatorUrl('chrome-extension://extension-id/site/', 'en-US', {
+        includeDefaultLocale: true,
+      }),
+    ).toBe('chrome-extension://extension-id/site/en/ai-media-creator/');
   });
 });

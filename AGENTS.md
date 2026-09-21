@@ -2,64 +2,42 @@
 
 ## Project Structure & Module Organization
 
-This repository is a React, TypeScript, and Vite browser extension using Chrome Manifest V3.
+This is a React, TypeScript, Vite, and Chrome Manifest V3 side-panel extension.
 
-- `src/App.tsx` contains the full-viewport iframe shell and fallback states.
-- `src/config.ts` maps browser locales and builds the localized AI Creator URL; colocate focused tests as `*.test.ts`.
-- `src/styles.css` styles only the loading/error shell; the embedded site owns normal UI.
-- `public/manifest.json`, `public/background.js`, `public/icons/`, and `public/_locales/` are copied into the extension build.
-- `web/flaq-saas/` is a Git Subtree containing the complete upstream SaaS site used by the iframe.
-- `scripts/dev.mjs` starts and stops the SaaS and extension development processes together.
-- `sidepanel.html` is the Vite entry point. Generated output lives in `dist/` and is not committed.
+- `src/` contains the side-panel shell, locale routing, and focused Vitest tests.
+- `public/` contains the manifest, extension worker, icons, and Chrome locales.
+- `web/flaq-saas/` is the complete Next.js SaaS source imported as a Git Subtree.
+- `scripts/build-extension.mjs` exports the SaaS and assembles a self-contained `dist/`.
+- `scripts/package-static-site.mjs` externalizes Next.js inline scripts for extension CSP.
+- `docs/` holds operational guidance. Generated `dist/`, `.next/`, and `out/` stay uncommitted.
 
-Keep the extension a thin website container. Product features, API access, credentials, history, and content belong to the embedded FLAQ SaaS site.
+The release artifact must run without localhost or a separately deployed SaaS site. Keep credentials out of the bundle; browser uploads obtain short-lived URLs from FLAQ using the user's Client Key.
 
 ## Build, Test, and Development Commands
 
-Use the pinned pnpm version from `package.json`.
+- `pnpm install` installs both isolated projects from their lockfiles.
+- `pnpm dev` runs the SaaS and Vite preview for hot-reload development.
+- `pnpm build` creates the standalone unpacked extension in `dist/`.
+- `pnpm test` runs Vitest, including locale and CSP-packaging tests.
+- `pnpm typecheck` checks the extension shell.
+- `pnpm typecheck:site` checks the embedded SaaS source.
+- `pnpm smoke:site` validates the server-backed development mode.
+- `pnpm sync:site` pulls the upstream subtree; preserve extension-export integration afterward.
 
-- `pnpm install` installs the extension, then installs the isolated SaaS project from its own lockfile.
-- `pnpm dev` builds the unpacked extension, starts the SaaS site on `FLAQ_SITE_PORT` (default 3000), and starts the side-panel preview on port 5173. The shared port keeps the server, iframe URL, and generated CSP aligned.
-- `pnpm dev:site` or `pnpm dev:extension` starts only one side of the local environment.
-- `pnpm smoke:site` starts the embedded site, rejects watcher failures, and requires an HTTP 200 response.
-- `pnpm typecheck` runs strict TypeScript validation without emitting files.
-- `pnpm typecheck:site` validates the embedded SaaS project.
-- `pnpm test` runs the Vitest suite once.
-- `pnpm build` or `pnpm build:dev` produces a localhost-targeted unpacked extension in `dist/`.
-- `VITE_SIDEPANEL_SITE_URL=https://example.com pnpm build:production` produces a production build and scopes iframe CSP to that origin.
+Before handoff, run `pnpm test`, `pnpm typecheck`, `pnpm build`, and inspect `dist/manifest.json`. Stop local servers when verifying standalone behavior.
 
-Before handing off a change, run `pnpm typecheck`, `pnpm test`, and `pnpm build`.
+## Coding Style & Testing
 
-## Coding Style & Naming Conventions
+Use TypeScript with two-space indentation, semicolons, single quotes, and trailing commas. Use `PascalCase` for components/types, `camelCase` for functions, and `UPPER_SNAKE_CASE` for constants. Keep deterministic tests beside the relevant module as `*.test.ts`; never make paid or credentialed API calls in tests.
 
-Use TypeScript with two-space indentation, semicolons, single quotes, and trailing commas in multiline structures. Name React components and interfaces in `PascalCase`, functions and variables in `camelCase`, and constants in `UPPER_SNAKE_CASE`. Prefer small typed helpers and explicit union types over untyped objects. Keep user-facing copy concise and in Simplified Chinese unless the surrounding UI establishes another language.
+## Commits, Pull Requests & Security
 
-## Testing Guidelines
+Use imperative Conventional Commits, for example `feat: bundle SaaS in extension`. Pull requests require a summary, verification commands, screenshots for UI changes, and explicit notes for permission, host-access, storage, or API changes.
 
-Vitest is the test framework. Name tests `src/<module>.test.ts` and describe observable behavior. No coverage threshold is configured; add targeted tests for locale mapping, URL construction, manifest generation, and other deterministic shell logic. Do not make paid or credentialed FLAQ API calls in automated tests.
+Never commit Client Keys, R2 credentials, `.env`, or browser data. Manifest permission expansion requires justification. Chrome MV3 forbids executable inline scripts, so all exported HTML must pass the packaging transform.
 
-## Commit & Pull Request Guidelines
+## Agent References
 
-The history currently contains only `Initial commit`, so no established convention exists. Use short imperative Conventional Commit messages such as `feat: add image context menu` or `fix: preserve polling history`.
-
-Pull requests should include a concise summary, verification commands, linked issue when applicable, and screenshots for side-panel UI changes. Call out new permissions, host access, storage changes, or API-contract changes explicitly.
-
-## Security & Configuration
-
-Never commit Client Keys or local browser data. Keep extension permissions limited to `sidePanel`. Production builds must set `VITE_SIDEPANEL_SITE_URL`, and the generated `frame-src` must contain only that site origin. Any permission or origin expansion requires explicit pull-request justification.
-
-The embedded Next.js project needs its explicit `turbopack.root` integration setting and polling-based development watcher when nested here. Preserve these integration adjustments when pulling a new subtree revision.
-
-## Agent skills
-
-### Issue tracker
-
-Issues are tracked as local Markdown files under `.scratch/`. See `docs/agents/issue-tracker.md`.
-
-### Triage labels
-
-Triage uses the five default canonical status labels. See `docs/agents/triage-labels.md`.
-
-### Domain docs
-
-This repository uses a single-context domain documentation layout. See `docs/agents/domain.md`.
+- Local issues: `docs/agents/issue-tracker.md`
+- Triage labels: `docs/agents/triage-labels.md`
+- Domain documentation: `docs/agents/domain.md`

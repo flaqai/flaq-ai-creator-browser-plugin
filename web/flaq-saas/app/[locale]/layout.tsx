@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import { getLanguageDirection } from '@/i18n/languages';
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages, getTranslations } from 'next-intl/server';
+import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { Toaster } from '@/components/ui/sonner';
 
@@ -12,8 +12,13 @@ import { NavigationGuardProvider } from 'next-navigation-guard';
 
 import { createLocalizedMetadata } from '@/lib/seo/metadata';
 import JsonLdScript from '@/components/scripts/JsonLdScript';
+import { locales } from '@/i18n/languages';
 
 import LazyGlobalUI from './LazyGlobalUI';
+
+export function generateStaticParams() {
+  return locales.map((locale) => ({ locale }));
+}
 
 const din = localFont({
   src: [
@@ -75,6 +80,8 @@ export default async function RootLayout(props: { children: React.ReactNode; par
   const params = await props.params;
 
   const { locale } = params;
+
+  setRequestLocale(locale);
 
   const { children } = props;
 

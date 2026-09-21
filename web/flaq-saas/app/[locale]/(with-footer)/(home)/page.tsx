@@ -1,4 +1,4 @@
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { numberList } from '@/lib/utils/arrayUtils';
 import Faq from '@/components/Faq';
@@ -55,10 +55,12 @@ const exampleImages = [
   },
 ]
 
-export default async function Page() {
-  const t = await getTranslations('Home');
-  const tCarousel = await getTranslations('Home.carousel');
-  const tExampleSection = await getTranslations('Home.exampleSection');
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: 'Home' });
+  const tCarousel = await getTranslations({ locale, namespace: 'Home.carousel' });
+  const tExampleSection = await getTranslations({ locale, namespace: 'Home.exampleSection' });
 
   const carouselData: CarouselCard[] = [
     {

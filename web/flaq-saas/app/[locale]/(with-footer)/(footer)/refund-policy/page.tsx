@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { useTranslations } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 
 import { createLocalizedMetadata } from '@/lib/seo/metadata';
@@ -17,8 +16,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   });
 }
 
-export default function Page() {
-  const t = useTranslations('FooterNavigation.refundPolicy');
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'FooterNavigation.refundPolicy' });
 
   return (
     <div className='prose prose-headings:text-gray-200 mx-auto py-[60px] text-gray-200 lg:py-[120px]'>

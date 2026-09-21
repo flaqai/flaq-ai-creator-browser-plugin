@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 const useInView = <R extends HTMLElement = HTMLDivElement>(
   options?: IntersectionObserverInit,
-): [React.RefObject<R>, boolean] => {
+): [React.RefObject<R | null>, boolean] => {
   const [isInView, setIsInView] = useState<boolean>(false);
   const ref = useRef<R | null>(null);
 
@@ -17,13 +17,14 @@ const useInView = <R extends HTMLElement = HTMLDivElement>(
       },
     );
 
-    if (ref.current) {
-      observer.observe(ref.current);
+    const element = ref.current;
+    if (element) {
+      observer.observe(element);
     }
 
     return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
+      if (element) {
+        observer.unobserve(element);
       }
     };
   }, [options]);

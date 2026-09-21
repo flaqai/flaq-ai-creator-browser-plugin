@@ -34,11 +34,23 @@ export function getUiLanguage() {
   return navigator.language || 'en';
 }
 
-export function buildCreatorUrl(siteUrl: string, uiLanguage: string) {
+export function buildCreatorUrl(
+  siteUrl: string,
+  uiLanguage: string,
+  options: { includeDefaultLocale?: boolean } = {},
+) {
   const base = new URL(siteUrl);
   const locale = resolveSiteLocale(uiLanguage);
-  base.pathname = `${locale === 'en' ? '' : `/${locale}`}/ai-media-creator/`;
+  const localePath = locale === 'en' && !options.includeDefaultLocale ? '' : `${locale}/`;
+  base.pathname = `${base.pathname.replace(/\/?$/, '/')}${localePath}ai-media-creator/`;
   base.search = '';
   base.hash = '';
   return base.toString();
+}
+
+export function getBundledSiteUrl() {
+  if (typeof chrome !== 'undefined' && chrome.runtime?.getURL) {
+    return chrome.runtime.getURL('site/');
+  }
+  return new URL('/site/', window.location.href).toString();
 }

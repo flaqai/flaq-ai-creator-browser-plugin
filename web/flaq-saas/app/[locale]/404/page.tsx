@@ -1,10 +1,11 @@
 import { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import { Link } from '@/i18n/navigation';
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations('error-page.not-found');
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'error-page.not-found' });
 
   return {
     title: t('title'),
@@ -19,8 +20,10 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function Page() {
-  const t = await getTranslations('error-page.not-found');
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations({ locale, namespace: 'error-page.not-found' });
 
   return (
     <div className='flex w-[100vw] flex-1 items-center justify-center'>

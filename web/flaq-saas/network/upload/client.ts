@@ -1,4 +1,4 @@
-import { getSecureItem } from '@/lib/utils/secureStorage';
+import { getClientContentLanguage, getClientOpenApiConfigAsync, openApiFetchJson } from '@/network/clientFetch';
 
 export interface CreateSignedUrlRequest {
   mineType: string[];
@@ -30,24 +30,35 @@ export async function createSignedUrl(
   mineType: string[],
   isForever?: boolean,
 ): Promise<CreateSignedUrlResponse> {
-  void isForever;
-
   if (typeof window === 'undefined') {
     throw new Error('createSignedUrl can only be called from the browser.');
   }
 
-  const publicDomain = await getSecureItem('FLAQ-SAAS-TEMPLATE-r2-public-domain');
-
-  const response = await fetch('/api/upload/presigned-url', {
+  const config = await getClientOpenApiConfigAsync();
+  const response = await openApiFetchJson<{
+    code: number;
+    msg?: string;
+    rows?: SignedUrlItem[];
+  }>(config, '/image/presignedUrl', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ mimeTypes: mineType, publicDomain }),
+    headers: { 'content-language': getClientContentLanguage() },
+    body: JSON.stringify({
+      mineType,
+      site: process.env.SITE_ID?.trim() || 'browser-extension',
+      isForever: Boolean(isForever),
+    }),
   });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Upload failed' }));
-    throw new Error(error.error || 'Failed to create signed URL');
+  if (![0, 200].includes(response.code)) {
+    throw new Error(response.msg || 'Flaq upload authorization failed.');
+  }
+  if (
+    !Array.isArray(response.rows) ||
+    response.rows.length !== mineType.length ||
+    response.rows.some((row) => !row.signedUrl || !row.url)
+  ) {
+    throw new Error('Flaq upload service returned incomplete upload URLs.');
   }
 
-  return response.json();
+  return { rows: response.rows };
 }

@@ -4,6 +4,8 @@ import { BASE_URL } from '@/lib/env';
 
 const PRIVATE_PATHS = ['/*/social-callback/', '/api/', '/404', '/500'];
 
+export const dynamic = 'force-static';
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {

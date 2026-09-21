@@ -20,7 +20,7 @@ const useUploadFiles = () => {
     await Promise.all(
       signedUrlResult.rows.map((obj, index) => {
         const file = files[index];
-        return fetchWithRetry(obj.signedUrl, {
+        return fetchWithRetry(obj.signedUrl!, {
           method: 'PUT',
           body: file.data,
           headers: {
@@ -31,7 +31,7 @@ const useUploadFiles = () => {
     );
 
     // Generate final URLs
-    return signedUrlResult.rows.map((el) => el.url);
+    return signedUrlResult.rows.map((el) => el.url!);
     // return storeResults.map(
     //   (item) =>
     //     `https://${process.env.NEXT_PUBLIC_R2_IMAGE_DOMAIN}${item.url.split('r2.cloudflarestorage.com')[1].split('?')[0]}`,

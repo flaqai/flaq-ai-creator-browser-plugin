@@ -1,5 +1,3 @@
-import ArrowDown from './ArrowDown';
-
 export default function SubHeading({
   children,
   rightNode,
@@ -10,7 +8,6 @@ export default function SubHeading({
   return (
     <div className='flex h-3.5 items-center gap-0.5 text-sm capitalize text-white'>
       {children}
-      {/* <ArrowDown /> */}
       {rightNode}
     </div>
   );

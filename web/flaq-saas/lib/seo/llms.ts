@@ -62,6 +62,19 @@ ${localePages.join('\n')}
 }
 
 export function getLlmsFullTxt() {
+  const setupSteps =
+    process.env.NEXT_PUBLIC_EXTENSION_EXPORT === 'true'
+      ? `1. Build the browser extension with pnpm build.
+2. Load the generated dist directory as an unpacked Chrome extension.
+3. Open API Settings in the side panel and add a Flaq Client Key before generating media.`
+      : `1. Clone https://github.com/flaqai/flaq-saas-template.
+2. Run pnpm install.
+3. Copy .env.example to .env.local.
+4. Set NEXT_PUBLIC_SITE_URL to the public origin, or http://localhost:3000 for local development.
+5. Add Cloudflare R2 credentials if local uploads should be stored remotely.
+6. Run pnpm dev and open http://localhost:3000.
+7. Open API Settings in the app and add a Flaq Client Key before generating media.`;
+
   return `${getLlmsTxt()}
 
 ## Full Project Context
@@ -105,13 +118,7 @@ The application supports 15 locales: English (en), Japanese (ja), Indonesian (id
 
 ### Local setup
 
-1. Clone https://github.com/flaqai/flaq-saas-template.
-2. Run pnpm install.
-3. Copy .env.example to .env.local.
-4. Set NEXT_PUBLIC_SITE_URL to the public origin, or http://localhost:3000 for local development.
-5. Add Cloudflare R2 credentials if local uploads should be stored remotely.
-6. Run pnpm dev and open http://localhost:3000.
-7. Open API Settings in the app and add a Flaq Client Key before generating media.
+${setupSteps}
 
 ### Public route catalog
 

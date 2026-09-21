@@ -1,6 +1,7 @@
 import { getLlmsFullTxt } from '@/lib/seo/llms';
 
 export const revalidate = 86400;
+export const dynamic = 'force-static';
 
 export function GET() {
   return new Response(getLlmsFullTxt(), {

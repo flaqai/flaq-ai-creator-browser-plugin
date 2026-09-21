@@ -4,6 +4,8 @@ import { generateLanguagePaths, languages } from '@/i18n/languages';
 import { ALL_FEATURE_ROUTES, SUPPORT_LINKS } from '@/lib/constants';
 import { BASE_URL } from '@/lib/env';
 
+export const dynamic = 'force-static';
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const sitemapRoutes = [
     { url: '', lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },

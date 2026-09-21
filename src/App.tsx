@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { buildCreatorUrl, getUiLanguage } from './config';
+import { buildCreatorUrl, getBundledSiteUrl, getUiLanguage } from './config';
 
 type FrameStatus = 'loading' | 'ready' | 'error';
 
@@ -10,15 +10,25 @@ function message(key: string, fallback: string) {
 }
 
 export default function App() {
+  const isBundledSite = import.meta.env.VITE_EMBEDDED_SITE === 'true';
   const targetUrl = useMemo(
-    () => buildCreatorUrl(import.meta.env.VITE_SIDEPANEL_SITE_URL, getUiLanguage()),
-    [],
+    () => buildCreatorUrl(
+      isBundledSite ? getBundledSiteUrl() : import.meta.env.VITE_SIDEPANEL_SITE_URL,
+      getUiLanguage(),
+      { includeDefaultLocale: isBundledSite },
+    ),
+    [isBundledSite],
   );
   const [frameKey, setFrameKey] = useState(0);
   const [status, setStatus] = useState<FrameStatus>('loading');
   const [isReachable, setIsReachable] = useState(false);
 
   useEffect(() => {
+    if (isBundledSite) {
+      setIsReachable(true);
+      return undefined;
+    }
+
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), 12_000);
 
@@ -36,7 +46,7 @@ export default function App() {
       controller.abort();
       window.clearTimeout(timeout);
     };
-  }, [frameKey, targetUrl]);
+  }, [frameKey, isBundledSite, targetUrl]);
 
   const retry = () => {
     setStatus('loading');

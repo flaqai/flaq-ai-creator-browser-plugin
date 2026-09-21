@@ -202,14 +202,21 @@ const FrameImageUpload = forwardRef<FrameImageUploadRef, FrameImageUploadProps>(
           className='hidden'
         />
 
-        {cloneElement(modalComponent, {
-          open: isModalOpen,
-          onOpenChange: setIsModalOpen,
-          onImageSelect: (url: string) => {
-            previewImage(url);
-            setIsModalOpen(false);
+        {cloneElement(
+          modalComponent as React.ReactElement<{
+            open?: boolean;
+            onOpenChange?: (open: boolean) => void;
+            onImageSelect?: (url: string) => void;
+          }>,
+          {
+            open: isModalOpen,
+            onOpenChange: setIsModalOpen,
+            onImageSelect: (url: string) => {
+              previewImage(url);
+              setIsModalOpen(false);
+            },
           },
-        })}
+        )}
       </div>
     );
   },
@@ -218,4 +225,3 @@ const FrameImageUpload = forwardRef<FrameImageUploadRef, FrameImageUploadProps>(
 FrameImageUpload.displayName = 'FrameImageUpload';
 
 export default FrameImageUpload;
-export type { FrameImageUploadRef };

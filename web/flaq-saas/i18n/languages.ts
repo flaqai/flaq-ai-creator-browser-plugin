@@ -125,7 +125,9 @@ export const generateLanguagePaths = (baseRoute: string, route: string) => {
   return languages.reduce<Record<string, string>>(
     (paths, { code, lang }) => ({
       ...paths,
-      [code]: `${normalizedBase}${lang === defaultLocale ? '' : `/${lang}`}${routePath}`,
+      [code]: `${normalizedBase}${
+        lang === defaultLocale && process.env.NEXT_PUBLIC_EXTENSION_EXPORT !== 'true' ? '' : `/${lang}`
+      }${routePath}`,
     }),
     {},
   );

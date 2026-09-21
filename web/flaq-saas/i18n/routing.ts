@@ -8,5 +8,5 @@ export const routing = defineRouting({
 
   // Used when no locale matches
   defaultLocale: defaultLocale,
-  localePrefix: 'as-needed',
+  localePrefix: process.env.NEXT_PUBLIC_EXTENSION_EXPORT === 'true' ? 'always' : 'as-needed',
 });

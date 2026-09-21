@@ -59,23 +59,19 @@ export default function ImageDetailModal({ open, onOpenChange, onDelete, image }
     });
   }, [open, image.url]);
 
-  const handleDownload = async () => {
+  const handleDownload = () => {
     if (!image.url) return;
 
     try {
-      // Use proxy API to avoid CORS issues
-      const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(image.url)}`;
-      const response = await fetch(proxyUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = url;
+      link.href = image.url;
       const ext = selectedFormat.toLowerCase();
       link.download = `image-${image.id}.${ext}`;
+      link.target = '_blank';
+      link.rel = 'noreferrer';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Download failed:', error);
       toast.error('Download failed');

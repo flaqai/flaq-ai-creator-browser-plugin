@@ -28,9 +28,7 @@ const useImageConverter = (): UseImageConverterResult => {
       // Remove file extension from filename
       const nameWithoutExt = imageName.replace(/\.[^/.]+$/, '');
 
-      // Use proxy API to avoid CORS issues
-      const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`;
-      const response = await fetch(proxyUrl);
+      const response = await fetch(imageUrl);
       const blob = await response.blob();
 
       // Detect original image format
