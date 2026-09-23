@@ -15,7 +15,10 @@ export default function App() {
     () => buildCreatorUrl(
       isBundledSite ? getBundledSiteUrl() : import.meta.env.VITE_SIDEPANEL_SITE_URL,
       getUiLanguage(),
-      { includeDefaultLocale: isBundledSite },
+      {
+        includeDefaultLocale: isBundledSite,
+        includeIndexDocument: isBundledSite,
+      },
     ),
     [isBundledSite],
   );

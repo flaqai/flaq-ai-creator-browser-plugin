@@ -3,6 +3,14 @@ import { cp, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const EXECUTABLE_INLINE_SCRIPT = /<script(?![^>]*\bsrc=)([^>]*)>([\s\S]*?)<\/script>/gi;
+const EXTENSION_DIRECTORY_LINK = /href=(["'])(\/site\/[^"'?#]*\/)((?:[?#][^"']*)?)\1/gi;
+
+export function rewriteExtensionDocumentLinks(html) {
+  return html.replace(
+    EXTENSION_DIRECTORY_LINK,
+    (_match, quote, directory, suffix) => `href=${quote}${directory}index.html${suffix}${quote}`,
+  );
+}
 
 export function externalizeInlineScripts(html) {
   const scripts = new Map();
@@ -42,7 +50,8 @@ export async function packageStaticSite({ sourceDirectory, publicDirectory, outp
   const scripts = new Map();
 
   for (const htmlPath of htmlFiles) {
-    const result = externalizeInlineScripts(await readFile(htmlPath, 'utf8'));
+    const html = rewriteExtensionDocumentLinks(await readFile(htmlPath, 'utf8'));
+    const result = externalizeInlineScripts(html);
     await writeFile(htmlPath, result.html);
     for (const [name, content] of result.scripts) scripts.set(name, content);
   }

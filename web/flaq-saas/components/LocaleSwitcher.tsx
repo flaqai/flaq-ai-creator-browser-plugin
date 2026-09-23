@@ -28,6 +28,16 @@ export default function LocaleSwitcher() {
     }
 
     setLocaleVal(newLocale);
+
+    if (process.env.NEXT_PUBLIC_EXTENSION_EXPORT === 'true') {
+      const normalizedPath = pathname.replace(/^\//, '').replace(/\/$/, '');
+      const query = searchParams.toString();
+      window.location.assign(
+        `/site/${newLocale}/${normalizedPath ? `${normalizedPath}/` : ''}index.html${query ? `?${query}` : ''}`,
+      );
+      return;
+    }
+
     router.replace(url, { locale: newLocale });
   };
 

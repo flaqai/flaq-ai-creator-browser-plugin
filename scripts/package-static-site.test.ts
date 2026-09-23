@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { externalizeInlineScripts } from './package-static-site.mjs';
+import { externalizeInlineScripts, rewriteExtensionDocumentLinks } from './package-static-site.mjs';
 
 describe('static SaaS packaging', () => {
   it('moves executable inline scripts into extension-owned files', () => {
@@ -20,5 +20,15 @@ describe('static SaaS packaging', () => {
 
     expect(result.html).toBe('');
     expect(result.scripts.size).toBe(0);
+  });
+
+  it('rewrites exported directory links to explicit extension documents', () => {
+    expect(
+      rewriteExtensionDocumentLinks(
+        '<a href="/site/en/">English</a><a href="/site/zh/text-to-video/?from=footer">Video</a>',
+      ),
+    ).toBe(
+      '<a href="/site/en/index.html">English</a><a href="/site/zh/text-to-video/index.html?from=footer">Video</a>',
+    );
   });
 });

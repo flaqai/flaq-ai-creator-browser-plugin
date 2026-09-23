@@ -37,12 +37,13 @@ export function getUiLanguage() {
 export function buildCreatorUrl(
   siteUrl: string,
   uiLanguage: string,
-  options: { includeDefaultLocale?: boolean } = {},
+  options: { includeDefaultLocale?: boolean; includeIndexDocument?: boolean } = {},
 ) {
   const base = new URL(siteUrl);
   const locale = resolveSiteLocale(uiLanguage);
   const localePath = locale === 'en' && !options.includeDefaultLocale ? '' : `${locale}/`;
-  base.pathname = `${base.pathname.replace(/\/?$/, '/')}${localePath}ai-media-creator/`;
+  const creatorPath = `${base.pathname.replace(/\/?$/, '/')}${localePath}ai-media-creator/`;
+  base.pathname = options.includeIndexDocument ? `${creatorPath}index.html` : creatorPath;
   base.search = '';
   base.hash = '';
   return base.toString();

@@ -121,13 +121,14 @@ export const generateLanguagePaths = (baseRoute: string, route: string) => {
   const normalizedBase = baseRoute.replace(/\/$/, '');
   const normalizedRoute = route.replace(/^\//, '').replace(/\/$/, '');
   const routePath = normalizedRoute ? `/${normalizedRoute}/` : '/';
+  const isExtensionExport = process.env.NEXT_PUBLIC_EXTENSION_EXPORT === 'true';
 
   return languages.reduce<Record<string, string>>(
     (paths, { code, lang }) => ({
       ...paths,
       [code]: `${normalizedBase}${
-        lang === defaultLocale && process.env.NEXT_PUBLIC_EXTENSION_EXPORT !== 'true' ? '' : `/${lang}`
-      }${routePath}`,
+        lang === defaultLocale && !isExtensionExport ? '' : `/${lang}`
+      }${routePath}${isExtensionExport ? 'index.html' : ''}`,
     }),
     {},
   );
