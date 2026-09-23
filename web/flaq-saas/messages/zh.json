@@ -116,7 +116,10 @@
       "step-create": "粘贴密钥、测试连接，然后开始创作"
     },
     "image-hosting": {
-      "title": "图床配置 (R2)",
+      "title": "图床设置",
+      "builtin": "Flaq 自带图床（默认）",
+      "builtin-description": "存储密钥由 Flaq 服务安全托管，连接 Flaq 后即可申请上传地址。",
+      "builtin-hint": "应用使用 Client Key 申请短期上传 URL，将素材直传存储服务，再只把公开 URL 发送给生成接口。",
       "public-domain": "公开域名",
       "public-domain-hint": "上传文件的 CDN 访问域名，推荐使用 https:// 协议。",
       "public-domain-placeholder": "https://assets.example.com",

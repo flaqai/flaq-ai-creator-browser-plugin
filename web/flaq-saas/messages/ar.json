@@ -116,7 +116,10 @@
       "step-create": "الصق المفتاح واختبر الاتصال ثم ابدأ"
     },
     "image-hosting": {
-      "title": "Image Hosting (R2)",
+      "title": "Image hosting",
+      "builtin": "Flaq storage (default)",
+      "builtin-description": "Flaq securely manages the storage credentials. Connect Flaq to request upload URLs.",
+      "builtin-hint": "The app requests a short-lived upload URL with your Client Key, uploads media directly to storage, then sends only the public URL to the generation API.",
       "public-domain": "Public Domain",
       "public-domain-hint": "The CDN domain for accessing uploaded files. Recommended to use https:// protocol.",
       "public-domain-placeholder": "https://assets.example.com",

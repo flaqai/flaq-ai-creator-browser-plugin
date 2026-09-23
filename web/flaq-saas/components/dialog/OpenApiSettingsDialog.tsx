@@ -8,7 +8,7 @@ import {
   OPEN_API_BASE_URL_STORAGE_KEY,
   OPEN_API_CLIENT_KEY_STORAGE_KEY,
 } from '@/network/clientFetch';
-import { ExternalLink, KeyRound, PlugZap, UserRound } from 'lucide-react';
+import { Check, ChevronDown, ChevronRight, ExternalLink, KeyRound, PlugZap, UserRound } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
@@ -66,17 +66,20 @@ type OpenApiSettingsDialogProps = {
 
 export default function OpenApiSettingsDialog({ open, onOpenChange }: OpenApiSettingsDialogProps) {
   const t = useTranslations('components.open-api-settings');
+  const tHosting = useTranslations('components.image-hosting');
   const tCommon = useTranslations('Common');
   const [baseUrl, setBaseUrl] = useState(DEFAULT_OPEN_API_BASE_URL);
   const [clientKey, setClientKey] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [securityNoticeExpanded, setSecurityNoticeExpanded] = useState(false);
+  const [hostingExpanded, setHostingExpanded] = useState(true);
 
   useEffect(() => {
     if (!open || typeof window === 'undefined') return;
 
     setSecurityNoticeExpanded(false);
+    setHostingExpanded(true);
     const loadSettings = async () => {
       const savedBaseUrl = await getSecureItem(OPEN_API_BASE_URL_STORAGE_KEY);
       const savedClientKey = await getSecureItem(OPEN_API_CLIENT_KEY_STORAGE_KEY);
@@ -277,6 +280,42 @@ export default function OpenApiSettingsDialog({ open, onOpenChange }: OpenApiSet
                 >
                   {t('clear-data')}
                 </button>
+              </div>
+            ) : null}
+          </div>
+
+          <div className='rounded-xl border border-white/10'>
+            <button
+              type='button'
+              onClick={() => setHostingExpanded((previous) => !previous)}
+              className='flex w-full items-center justify-between px-4 py-3 text-sm font-medium text-white/75 transition hover:text-white'
+              aria-expanded={hostingExpanded}
+              aria-controls='image-hosting-settings'
+            >
+              <span>{tHosting('title')}</span>
+              {hostingExpanded ? (
+                <ChevronDown className='size-4' aria-hidden='true' />
+              ) : (
+                <ChevronRight className='size-4' aria-hidden='true' />
+              )}
+            </button>
+
+            {hostingExpanded ? (
+              <div id='image-hosting-settings' className='space-y-3 border-t border-white/10 p-4'>
+                <div className='flex gap-3 rounded-lg border border-primary bg-primary/5 p-3'>
+                  <span className='mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border border-primary bg-primary text-white'>
+                    <Check className='size-2.5' strokeWidth={3} aria-hidden='true' />
+                  </span>
+                  <span>
+                    <span className='block text-sm font-medium text-white'>{tHosting('builtin')}</span>
+                    <span className='mt-1 block text-xs leading-5 text-white/50'>
+                      {tHosting('builtin-description')}
+                    </span>
+                  </span>
+                </div>
+                <p className='rounded-lg bg-white/[0.035] px-3 py-2.5 text-xs leading-5 text-white/55'>
+                  {tHosting('builtin-hint')}
+                </p>
               </div>
             ) : null}
           </div>

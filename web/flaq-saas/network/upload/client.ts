@@ -1,7 +1,14 @@
 import { getClientContentLanguage, getClientOpenApiConfigAsync, openApiFetchJson } from '@/network/clientFetch';
 
+import {
+  createFlaqPresignedUrlBody,
+  FLAQ_PRESIGNED_URL_PATH,
+  type FlaqPresignedUrlResponse,
+  validateFlaqUploadCount,
+} from './flaq-storage-contract';
+
 export interface CreateSignedUrlRequest {
-  mineType: string[];
+  mimeTypes: string[];
   isForever?: boolean;
 }
 
@@ -18,47 +25,47 @@ export interface CreateSignedUrlResponse {
   rows: SignedUrlItem[];
 }
 
-/**
- * Generic upload interface placeholder:
- * Currently using createSignedUrl naming, will switch to image hosting or backend proxy later.
- */
 export interface UploadAdapter {
   createSignedUrl(input: CreateSignedUrlRequest): Promise<SignedUrlItem[]>;
 }
 
 export async function createSignedUrl(
-  mineType: string[],
+  mimeTypes: string[],
   isForever?: boolean,
 ): Promise<CreateSignedUrlResponse> {
   if (typeof window === 'undefined') {
     throw new Error('createSignedUrl can only be called from the browser.');
   }
+  if (mimeTypes.length === 0) return { rows: [] };
+
+  validateFlaqUploadCount(mimeTypes.length);
+  // Retention is controlled by the Flaq storage service. Keep this argument for
+  // compatibility with existing upload callers without sending it to the API.
+  void isForever;
 
   const config = await getClientOpenApiConfigAsync();
-  const response = await openApiFetchJson<{
-    code: number;
-    msg?: string;
-    rows?: SignedUrlItem[];
-  }>(config, '/image/presignedUrl', {
+  const response = await openApiFetchJson<FlaqPresignedUrlResponse>(config, FLAQ_PRESIGNED_URL_PATH, {
     method: 'POST',
     headers: { 'content-language': getClientContentLanguage() },
-    body: JSON.stringify({
-      mineType,
-      site: process.env.SITE_ID?.trim() || 'browser-extension',
-      isForever: Boolean(isForever),
-    }),
+    body: JSON.stringify(createFlaqPresignedUrlBody(mimeTypes)),
   });
 
   if (![0, 200].includes(response.code)) {
-    throw new Error(response.msg || 'Flaq upload authorization failed.');
+    throw new Error(response.message || 'Flaq upload authorization failed.');
   }
   if (
-    !Array.isArray(response.rows) ||
-    response.rows.length !== mineType.length ||
-    response.rows.some((row) => !row.signedUrl || !row.url)
+    !Array.isArray(response.data) ||
+    response.data.length !== mimeTypes.length ||
+    response.data.some((row) => !row.signed_url || !row.url)
   ) {
     throw new Error('Flaq upload service returned incomplete upload URLs.');
   }
 
-  return { rows: response.rows };
+  return {
+    rows: response.data.map((row, index) => ({
+      signedUrl: row.signed_url,
+      url: row.url,
+      mimeType: mimeTypes[index],
+    })),
+  };
 }
